@@ -166,8 +166,8 @@ const logoutUser = asyncHandler(async (req, res) => {
   await User.findOneAndUpdate(
     req.user._id,
     {
-      $set: {
-        refreshToken: undefined,
+      $unset: {
+        refreshToken: 1,
       },
     },
     {
@@ -370,7 +370,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   const { username } = req.params;
 
   if (!username.trim()) {
-    throw new apiError(400, "User name is missing");
+    throw new apiError(400, "Username is missing");
   }
 
   const channel = await User.aggregate([
