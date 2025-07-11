@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { verifyJWT } from "../src/middlewares/auth.middleware";
-import { getChannelStats, getChannelVideos } from "../src/controllers/dashboard.controllers";
+import { verifyJWT } from "../src/middlewares/auth.middleware.js";
+import { getChannelStats, getChannelVideos } from "../src/controllers/dashboard.controllers.js";
 
 const router = Router()
 
