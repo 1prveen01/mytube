@@ -5,3 +5,6 @@ import { healthcheck } from "../src/controllers/healthcheck.controllers.js";
 const router = Router()
 
 router.route("/health-check").get(verifyJWT,healthcheck)
+
+
+export default router;

@@ -2,7 +2,7 @@ import mongoose, { isValidObjectId } from "mongoose";
 import { Like } from "../models/like.model.js";
 import { Tweet } from "../models/tweets.model.js";
 import { Comment } from "../models/comments.model.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { asyncHandler } from "../../utils/asyncHandler.js"
 import { apiError } from "../../utils/apiError.js";
 import { apiResponse } from "../../utils/apiResponse.js";
 import { Video } from "../models/videos.model.js";
