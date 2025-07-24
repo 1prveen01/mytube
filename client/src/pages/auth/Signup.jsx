@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react'
-import axiosInstance from '../../utils/axios'
+import axiosInstance from '../../utils/axios.js'
 import { Link } from 'react-router-dom'
 
 const Signup = () => {
