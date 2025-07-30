@@ -2,14 +2,17 @@ import React, { useState } from 'react'
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useEffect } from 'react';
 import axiosInstance from '../../utils/axios.js';
+import Layout from '../../components/Layout.jsx';
 
 
 
 const Profile = () => {
 
     const { user, isAuthenticated } = useAuth();
+    const [image, setImage] = useState("")
     const [subscribers, setSubscribers] = useState(0);
     const [subscribed, setSubscribed] = useState(0);
+    const [tweet, setTweet] = useState(0);
 
     useEffect(() => {
         console.log("User object:", user)
@@ -23,17 +26,21 @@ const Profile = () => {
 
 
         //get number of subscribers
-
         axiosInstance
-            .get(`/subscription/get-user-channel-subscribers/${user._id}`)
+            .get(`/subscriptions/get-user-channel-subscribers/${user._id}`)
             .then((res) => (setSubscribers(res.data.length)))
             .catch((err) => (console.log("Error in fetching subscribers: ", err)));
 
 
         //get the numbers of subscribed channel
-        axiosInstance.get(`/get-subscribed-channels/${user._id}`)
+        axiosInstance.get(`subscriptions/get-subscribed-channels/${user._id}`)
             .then((res) => setSubscribed(res.data.length))
             .catch((err) => console.log("Error in fetching subscribed channels: ", err));
+
+        //get the number of tweets
+        axiosInstance.get(`tweets/get-user-tweets/${user._id}`)
+            .then((res) => setTweet(res.data.totalTweet))
+            .catch((err) => console.log("Error in fetching total tweets count : ", err));
 
     }, [user])
 
@@ -46,27 +53,31 @@ const Profile = () => {
 
 
     return (
+        <Layout>
+           <div className="flex flex-row justify-center items-center p-8 min-h-[calc(100vh-4rem)] w-full overflow-x-hidden">
 
-
-        <div className="min-h-screen bg-black flex justify-center items-center  text-white p-8 min-w-screen">
-            <div className='flex flex-row justify-center border-2 border-gray-900 items-center'>
+                <div className='flex flex-row justify-center border-2 border-gray-900 px-8 py-4 rounded-md items-center'>
                 <div className="left h-[200px] w-[200px]">
-                    <img src="https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250" alt="" />
+                    <img 
+                    className='h-full w-full object-cover rounded-md' 
+                    src={user.avatar} 
+                    alt="" />
                 </div>
-                <div className="right ml-4 flex-col flex items-start border-2 border-amber-400 justify-between">
+                <div className="right ml-4 flex-col flex items-start  justify-between">
                     <h2 className='text-4xl text-white font-medium '>Welcome , {user.fullName}</h2>
                     <h3> channel Name : {user.username}</h3>
-                    <h2 className=''>Subscribers: 54</h2>
-                    <h2>Subscribed: 20</h2>
-                    <h2>Tweets: 2</h2>
+                    <h2 className=''>Subscribers: {subscribers}</h2>
+                    <h2>Subscribed: {subscribed}</h2>
+                    <h2>Tweets: {tweet}</h2>
 
-                    <div className='flex flex-row justify-around  w-full'>
+                    <div className='flex flex-row justify-between  w-full'>
                         <button className='bg-gray-700 rounded-md px-2 py-1 my-2 text-white text-2xl'>edit</button>
                         <button className='bg-red-600  rounded-md px-2 py-1  my-2 text-white text-2xl'>delete</button>
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
+        </Layout>
     )
 }
 

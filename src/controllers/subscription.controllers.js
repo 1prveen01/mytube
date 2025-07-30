@@ -41,6 +41,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
   const { channelId } = req.params;
+  console.log("user id :" , req.user)
   if (!channelId) {
     throw new apiError(400, "channel id is missing");
   }

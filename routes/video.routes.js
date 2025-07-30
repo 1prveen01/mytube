@@ -12,7 +12,7 @@ router.route("/publish-video").post(verifyJWT,upload.fields([
 router.route("/get-video-by-id/:video-id").get(verifyJWT, getVideoById)
 router.route("/update-video/:videoId").patch(verifyJWT , updateVideo)
 router.route("/delete-video/:videoId").delete(verifyJWT , deleteVideo)
-router.route("video-published/:videoId").patch(verifyJWT , togglePublishStatus)
+router.route("/video-published/:videoId").patch(verifyJWT , togglePublishStatus)
 
 
 export default router;

@@ -32,9 +32,9 @@ const Login = () => {
             const res = await axiosInstance.post("/users/login", formData, {
                 withCredentials: true
             })
-            alert("Login successfull")
+            alert("Login successfully")
             login(res.data.data);
-            navigate("/signup")
+            navigate("/")
             console.log(res.data);
 
         } catch (error) {

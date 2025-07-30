@@ -5,6 +5,7 @@ import Signup from './pages/auth/Signup.jsx'
 import {Routes , Route} from "react-router-dom"
 import Navbar from './components/Navbar.jsx'
 import Profile from './pages/dashboard/Profile.jsx'
+import Home from './pages/home/Home.jsx'
 
 function App() {
 
@@ -13,7 +14,7 @@ function App() {
 
       <Routes>
         //root router
-        <Route path= "/" element = {<h1 className='text-white text-2xl'>hello world home page</h1>} />
+        <Route path= "/" element = {<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path = "/dashboard/profile" element = {

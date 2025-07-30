@@ -57,14 +57,20 @@ const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
   // TODO: get video, upload to cloudinary , create video
 
-  const videoLocalFilePath = req.file?.path;
+  const videoLocalFilePath = req.files?.videoFile?.[0].path;
+const thumbnailFile = req.files?.thumbnail?.[0];  
 
   if (!videoLocalFilePath) {
     throw new apiError(400, "Missing video local file path");
   }
 
+  
   //upload in cloudinary
   const uploadVideo = await uploadOnCloudinary(videoLocalFilePath);
+  const uploadThumbnail = await uploadOnCloudinary(thumbnailFile.path);
+
+
+  
 
   //video duration in seconds
   const durationInSeconds = uploadVideo.duration;
@@ -79,6 +85,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     videoFile: uploadVideo.url,
     duration: durationInSeconds,
     owner: req.user?._id,
+    thumbnail: uploadThumbnail.url,
   });
 
   return res
@@ -109,7 +116,7 @@ const updateVideo = asyncHandler(async (req, res) => {
   //TODO: update video details like title, description, thumbnail
 
   const { title, description } = req.body;
-  const thumbnailLocalFilePath = req.file?.path;
+  const thumbnailLocalFilePath = req.files?.path;
   if (!thumbnailLocalFilePath) {
     throw new apiError(400, "Error while uploading thumbnail");
   }
