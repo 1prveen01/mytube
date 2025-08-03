@@ -93,6 +93,8 @@ const thumbnailFile = req.files?.thumbnail?.[0];
     .json(new apiResponse(200, saveVideo, "Video uploaded successfully"));
 });
 
+
+
 const getVideoById = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   //TODO: get video by id
@@ -110,6 +112,8 @@ const getVideoById = asyncHandler(async (req, res) => {
     .status(200)
     .json(new apiResponse(200, video, "Video fetced successfully"));
 });
+
+
 
 const updateVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;

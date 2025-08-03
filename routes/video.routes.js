@@ -9,7 +9,7 @@ router.route("/publish-video").post(verifyJWT,upload.fields([
     {name : "videoFile", maxCount: 1},
     {name : "thumbnail" , maxCount: 1}
 ]), publishAVideo)
-router.route("/get-video-by-id/:video-id").get(verifyJWT, getVideoById)
+router.route("/get-video-by-id/:videoId").get(verifyJWT, getVideoById)
 router.route("/update-video/:videoId").patch(verifyJWT , updateVideo)
 router.route("/delete-video/:videoId").delete(verifyJWT , deleteVideo)
 router.route("/video-published/:videoId").patch(verifyJWT , togglePublishStatus)

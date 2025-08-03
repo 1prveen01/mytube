@@ -6,6 +6,8 @@ import {Routes , Route} from "react-router-dom"
 import Navbar from './components/Navbar.jsx'
 import Profile from './pages/dashboard/Profile.jsx'
 import Home from './pages/home/Home.jsx'
+import VideoPlayer from './pages/videoPlayer/VideoPlayer.jsx'
+
 
 function App() {
 
@@ -20,6 +22,7 @@ function App() {
         <Route path = "/dashboard/profile" element = {
             <Profile />
         } />
+        <Route path="/video/:videoId" element = {<VideoPlayer />} />
         
       </Routes>
 

@@ -10,3 +10,8 @@ export const fetchAllVideos = async({page =1 , limit = 10  , query ="" , sortBy 
 
     return res.data.data;
 }
+
+export const getVideoById = async(videoId) =>{
+    const res = await axiosInstance.get(`/videos/get-video-by-id/${videoId}`);
+    return res.data.data;
+}
