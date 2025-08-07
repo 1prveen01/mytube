@@ -4,38 +4,92 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import { Video } from "../models/videos.model.js";
 import { apiError } from "../../utils/apiError.js";
 import { apiResponse } from "../../utils/apiResponse.js";
+import { Like } from "../models/like.model.js";
+
 
 const getVideoComments = asyncHandler(async (req, res) => {
-  //TODO: get all comments for a video
   const { videoId } = req.params;
   const { page = 1, limit = 10 } = req.query;
-  
+  const userId = req.user?._id;
 
   if (!videoId) {
     throw new apiError(400, "Video id is missing");
   }
 
-  //skips the comments
   const skip = (Number(page) - 1) * Number(limit);
 
-  //get total count of comments from videoId
+  // Total comment count
   const totalComment = await Comment.countDocuments({ video: videoId });
 
-  //fetching comments
+  // Fetch paginated comments
   const comments = await Comment.find({ video: videoId })
     .populate("owner", "username avatar fullName")
     .skip(skip)
     .limit(limit)
     .sort({ createdAt: -1 });
 
+  const commentIds = comments.map((c) => c._id);
+
+  // Fetch all reactions by the user in one query
+  const userReactions = await Like.find({
+    comment: { $in: commentIds },
+    likedBy: userId,
+  });
+
+  // Map reactions for quick lookup
+  const reactionMap = {};
+  userReactions.forEach((reaction) => {
+    const id = reaction.comment.toString();
+    if (!reactionMap[id]) reactionMap[id] = {};
+    if (reaction.type === "like") reactionMap[id].isLiked = true;
+    if (reaction.type === "dislike") reactionMap[id].isDisliked = true;
+  });
+
+  // Get like/dislike counts using aggregation
+  const likeStats = await Like.aggregate([
+    { $match: { comment: { $in: commentIds } } },
+    {
+      $group: {
+        _id: { comment: "$comment", type: "$type" },
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  // Map counts by commentId
+  const countsMap = {};
+  likeStats.forEach((entry) => {
+    const id = entry._id.comment.toString();
+    const type = entry._id.type;
+    if (!countsMap[id]) countsMap[id] = { likesCount: 0, dislikeCount: 0 };
+    if (type === "like") countsMap[id].likesCount = entry.count;
+    if (type === "dislike") countsMap[id].dislikeCount = entry.count;
+  });
+
+  // Final response construction
+  const commentsWithLikeStatus = comments.map((comment) => {
+    const id = comment._id.toString();
+    return {
+      _id: comment._id,
+      content: comment.content,
+      owner: comment.owner,
+      createdAt: comment.createdAt,
+      isLiked: reactionMap[id]?.isLiked || false,
+      isDisliked: reactionMap[id]?.isDisliked || false,
+      likesCount: countsMap[id]?.likesCount || 0,
+      dislikeCount: countsMap[id]?.dislikeCount || 0,
+    };
+  });
+
   return res.status(200).json(
     new apiResponse(
       200,
       {
         totalComment,
-        comments,
+        comments: commentsWithLikeStatus,
         page: Number(page),
         skip: Number(skip),
+        totalPages: Math.ceil(totalComment / limit),
       },
       "Comments fetched Successfully"
     )
