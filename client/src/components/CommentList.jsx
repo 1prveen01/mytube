@@ -13,7 +13,7 @@ const CommentList = ({ comments = [] }) => {
             acc[c._id] = {
                 liked: c.isLiked || false,
                 count: c.likesCount || 0,
-                disliked: c.disliked || false,
+                disliked: c.isDisliked || false,
                 dislikeCount: c.dislikeCount || 0,
             };
             return acc;

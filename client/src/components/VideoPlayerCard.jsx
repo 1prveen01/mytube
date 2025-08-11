@@ -5,6 +5,7 @@ import CommentList from './CommentList.jsx';
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react'
 import { addComment, getComment } from '../services/commentService.js';
+import { getLikeStatus, postDislikeInVideo, postLikeInVideo, } from '../services/likeService.js';
 
 
 
@@ -16,10 +17,66 @@ const VideoPlayerCard = ({ video }) => {
   const [loading, setLoading] = useState(false);
   const [commentText, setCommentText] = useState("");
 
+  const [likeState, setLikeState] = useState({
+    liked: false,
+    likeCount: 0,
+    disliked: false,
+    dislikeCount: 0
+  });
+
+  // Fetch like/dislike status
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await getLikeStatus(videoId);
+        setLikeState({
+          liked: !!res.isLiked,
+          likeCount: res.likeCount || 0,
+          disliked: !!res.isDisliked,
+          dislikeCount: res.dislikeCount || 0
+        });
+      } catch (error) {
+        console.error("Error fetching like/dislike status:", error);
+      }
+    };
+    fetchStatus();
+  }, [videoId]);
+
+  // Handle Like
+  const handleLike = async () => {
+    try {
+      const { isLiked, likeCount, dislikeCount } = await postLikeInVideo(videoId);
+      setLikeState(prev => ({
+        ...prev,
+        liked: isLiked,
+        likeCount,
+        disliked: false,
+        dislikeCount
+      }));
+    } catch (error) {
+      console.log("Error in liking Video: ", error);
+    }
+  };
+
+  // Handle Dislike
+  const handleDislike = async () => {
+    try {
+      const { isDisliked, likeCount, dislikeCount } = await postDislikeInVideo(videoId);
+      setLikeState(prev => ({
+        ...prev,
+        disliked: isDisliked,
+        dislikeCount,
+        liked: false,
+        likeCount
+      }));
+    } catch (error) {
+      console.log("Error in disliking Video: ", error);
+    }
+  };
 
   // fetch comments
   useEffect(() => {
-    if(!videoId) return;
+    if (!videoId) return;
 
     const loadComment = async () => {
       try {
@@ -55,6 +112,8 @@ const VideoPlayerCard = ({ video }) => {
   }
 
 
+
+
   return (
     <div className='flex flex-col h-screen'>
 
@@ -76,10 +135,10 @@ const VideoPlayerCard = ({ video }) => {
         <div className='flex border-2 justify-between  border-green-500 flex-row '>
           {/* name image */}
           <div className='flex items-center  flex-row'>
-            <img className='w-14 h-14 rounded-full' src="https://cdn.pixabay.com/photo/2020/04/10/14/57/animal-5026147_1280.jpg" alt="" />
+            <img className='w-14 h-14 rounded-full' src={video.owner.avatar} alt="" />
             <div className='flex flex-col ml-4 justify-between items-start'>
-              <p className='text-md block font-medium uppercase'>praveen kumar</p>
-              <p className='block text-sm font-light'>username is written here</p>
+              <p className='text-md block font-medium uppercase'>{video.owner.fullName}</p>
+              <p className='block text-sm font-light'>{video.owner.username}</p>
             </div>
           </div>
 
@@ -90,9 +149,16 @@ const VideoPlayerCard = ({ video }) => {
             </div>
 
             <div className='flex flex-row  bg-white justify-center items-center px-4 rounded-3xl py-2'>
-              <AiFillLike className='text-2xl text-black' />
-              <p className='block mx-1 text-black text-md font-medium'>24</p>
-              <AiFillDislike className='text-2xl  ml-2 text-black' />
+              <AiFillLike
+                onClick={handleLike}
+                className={`text-2xl cursor-pointer ${likeState.liked ? "text-blue-500" : "text-black"}`}
+              />
+              <p className='mx-1 text-black font-medium'>{likeState.likeCount}</p>
+               <AiFillDislike
+                onClick={handleDislike}
+                className={`text-2xl ml-2 cursor-pointer ${likeState.disliked ? "text-red-500" : "text-black"}`}
+              />
+              <p className='mx-1 text-black font-medium'>{likeState.dislikeCount}</p>
             </div>
           </div>
         </div>
@@ -108,10 +174,10 @@ const VideoPlayerCard = ({ video }) => {
             rows={2}
           />
           <div className='mx-4'>
-            <button 
-            onClick={handleComment}
-            disabled={loading}
-            className='bg-white text-md px-4 font-medium rounded-3xl py-2   text-black'>
+            <button
+              onClick={handleComment}
+              disabled={loading}
+              className='bg-white text-md px-4 font-medium rounded-3xl py-2   text-black'>
               {loading ? "Posting..." : "Comment"}
             </button>
           </div>
