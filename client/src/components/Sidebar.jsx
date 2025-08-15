@@ -34,7 +34,7 @@ const Sidebar = () => {
                    hover:bg-gray-400 hover:text-gray-900
                      ${isActive ? "bg-gray-300 text-gray-900 font-semibold" : "text-white"}`}>
                     <FaHistory />
-                    <span className='mx-2'>History</span>
+                    <span className='mx-2'>Uploaded Videos</span>
                 </NavLink>             
                 
                    <NavLink to="/liked" className={({ isActive }) =>

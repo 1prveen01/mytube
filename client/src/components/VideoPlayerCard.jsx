@@ -2,10 +2,15 @@ import React from 'react'
 import { AiFillLike } from "react-icons/ai";
 import { AiFillDislike } from "react-icons/ai";
 import CommentList from './CommentList.jsx';
-import { useParams } from 'react-router-dom';
+import {  useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react'
 import { addComment, getComment } from '../services/commentService.js';
 import { getLikeStatus, postDislikeInVideo, postLikeInVideo, } from '../services/likeService.js';
+import SubscribeButton from './SubscribeButton.jsx';
+import { getSubscriptionStatus } from '../services/subscribeService.js';
+import { togglesubscribeChannel } from '../services/subscribeService.js';
+
+
 
 
 
@@ -23,6 +28,39 @@ const VideoPlayerCard = ({ video }) => {
     disliked: false,
     dislikeCount: 0
   });
+
+  //subscribers count
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriberCount, setSubscriberCount] = useState(0);
+  const [loadingSubscribe, setLoadingSubscribe] = useState(false);
+
+  // Fetch subscription status on mount
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await getSubscriptionStatus(video.owner._id);
+        setIsSubscribed(res.isSubscribed);
+        setSubscriberCount(res.subscribersCount);
+      } catch (err) {
+        console.error("Error fetching subscription status:", err);
+      }
+    };
+    fetchStatus();
+  }, [video.owner._id]);
+
+  const handleSubscribe = async () => {
+    if (loadingSubscribe) return; // prevent spam clicks
+    setLoadingSubscribe(true);
+    try {
+      const { isSubscribed, subscribersCount } = await togglesubscribeChannel(video.owner._id);
+      setIsSubscribed(isSubscribed);
+      setSubscriberCount(subscribersCount);
+    } catch (err) {
+      console.error("Error toggling subscription:", err);
+    } finally {
+      setLoadingSubscribe(false);
+    }
+  };
 
   // Fetch like/dislike status
   useEffect(() => {
@@ -73,6 +111,13 @@ const VideoPlayerCard = ({ video }) => {
       console.log("Error in disliking Video: ", error);
     }
   };
+
+  const navigate = useNavigate();
+
+  //handleImage
+  const handleImage = () =>{
+    navigate(`/dashboard/profile`)
+  }
 
   // fetch comments
   useEffect(() => {
@@ -135,17 +180,32 @@ const VideoPlayerCard = ({ video }) => {
         <div className='flex border-2 justify-between  border-green-500 flex-row '>
           {/* name image */}
           <div className='flex items-center  flex-row'>
-            <img className='w-14 h-14 rounded-full' src={video.owner.avatar} alt="" />
+            <img className='w-14 h-14 cursor-pointer rounded-full' src={video.owner.avatar} onClick={handleImage} alt="" />
             <div className='flex flex-col ml-4 justify-between items-start'>
-              <p className='text-md block font-medium uppercase'>{video.owner.fullName}</p>
-              <p className='block text-sm font-light'>{video.owner.username}</p>
+              <p onClick={handleImage} className='text-md block cursor-pointer font-medium uppercase'>{video.owner.fullName}</p>
+              {/* <p className='block text-sm font-light'>{video.owner.username}</p> */}
+              <p className='text-sm font-light'>{subscriberCount} subscribers</p>
+
             </div>
           </div>
 
           {/* like dislike and subscribe*/}
           <div className='flex  flex-row items-center'>
             <div className='mx-4'>
-              <button className='bg-white text-md px-4 font-medium rounded-3xl py-2   text-black'>Subscribe</button>
+              <button
+                onClick={handleSubscribe}
+                disabled={loadingSubscribe}
+                className={`flex flex-row font-semibold justify-center items-center px-4 rounded-3xl py-2 transition ${isSubscribed
+                    ? "bg-gray-300 text-black hover:bg-gray-300"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                  }`}
+              >
+                {loadingSubscribe
+                  ? "Loading..."
+                  : isSubscribed
+                    ? `Subscribed `
+                    : `Subscribe `}
+              </button>
             </div>
 
             <div className='flex flex-row  bg-white justify-center items-center px-4 rounded-3xl py-2'>
@@ -154,7 +214,7 @@ const VideoPlayerCard = ({ video }) => {
                 className={`text-2xl cursor-pointer ${likeState.liked ? "text-blue-500" : "text-black"}`}
               />
               <p className='mx-1 text-black font-medium'>{likeState.likeCount}</p>
-               <AiFillDislike
+              <AiFillDislike
                 onClick={handleDislike}
                 className={`text-2xl ml-2 cursor-pointer ${likeState.disliked ? "text-red-500" : "text-black"}`}
               />

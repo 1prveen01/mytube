@@ -1,11 +1,11 @@
 import mongoose, { isValidObjectId } from "mongoose";
 import { Video } from "../models/videos.model.js";
-import { User } from "../models/users.model.js";
 import { apiError } from "../../utils/apiError.js";
 import { apiResponse } from "../../utils/apiResponse.js";
 import { uploadOnCloudinary } from "../../utils/cloudinary.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { getPublicIdFromUrl } from "../../utils/getPublicIdFromUrl.js";
+import { cloudinary } from "../../utils/cloudinary.js"
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
@@ -53,24 +53,21 @@ const getAllVideos = asyncHandler(async (req, res) => {
   );
 });
 
+//uploading the video
 const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
   // TODO: get video, upload to cloudinary , create video
 
   const videoLocalFilePath = req.files?.videoFile?.[0].path;
-const thumbnailFile = req.files?.thumbnail?.[0];  
+  const thumbnailFile = req.files?.thumbnail?.[0];
 
   if (!videoLocalFilePath) {
     throw new apiError(400, "Missing video local file path");
   }
 
-  
   //upload in cloudinary
   const uploadVideo = await uploadOnCloudinary(videoLocalFilePath);
   const uploadThumbnail = await uploadOnCloudinary(thumbnailFile.path);
-
-
-  
 
   //video duration in seconds
   const durationInSeconds = uploadVideo.duration;
@@ -93,8 +90,6 @@ const thumbnailFile = req.files?.thumbnail?.[0];
     .json(new apiResponse(200, saveVideo, "Video uploaded successfully"));
 });
 
-
-
 const getVideoById = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   //TODO: get video by id
@@ -113,17 +108,62 @@ const getVideoById = asyncHandler(async (req, res) => {
     .json(new apiResponse(200, video, "Video fetced successfully"));
 });
 
+//getting the uploaded video
+const getPublishedVideos = asyncHandler(async (req, res) => {
+  const {
+    page = 1,
+    limit = 10,
+    query,
+    sortBy = "createdAt",
+    sortType = "desc",
+    userId,
+  } = req.query;
 
+  const filters = { isPublished: true }; // only published videos
+
+  if (query) {
+    filters.title = { $regex: query, $options: "i" };
+  }
+
+  if (userId) {
+    filters.owner = userId;
+  }
+
+  const sortOptions = {};
+  sortOptions[sortBy] = sortType === "asc" ? 1 : -1;
+
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const videos = await Video.find(filters)
+    .populate("owner", "username avatar fullName")
+    .sort(sortOptions)
+    .skip(skip)
+    .limit(Number(limit));
+
+  const total = await Video.countDocuments(filters);
+
+  return res.status(200).json(
+    new apiResponse(
+      200,
+      {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        videos,
+      },
+      "Published videos fetched successfully"
+    )
+  );
+});
 
 const updateVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  //TODO: update video details like title, description, thumbnail
+  // update video details like title, description, thumbnail
 
-  const { title, description } = req.body;
-  const thumbnailLocalFilePath = req.files?.path;
-  if (!thumbnailLocalFilePath) {
-    throw new apiError(400, "Error while uploading thumbnail");
-  }
+  const { title, description } = req.body || {};
+  const thumbnailLocalFilePath = req.files?.thumbnail?.[0]?.path;
+
+ 
 
   if (!videoId.trim()) {
     throw new apiError(400, "videoId is missing");
@@ -159,12 +199,16 @@ const updateVideo = asyncHandler(async (req, res) => {
   const updatedVideo = await video.save();
   return res
     .status(200)
-    .json(new apiResponse(200, updateVideo, "Video details updated successfully "));
+    .json(
+      new apiResponse(200, updatedVideo, "Video details updated successfully ")
+    );
 });
 
+// delete video
 const deleteVideo = asyncHandler(async (req, res) => {
+
   const { videoId } = req.params;
-  //TODO: delete video
+
   if (!videoId) {
     throw new apiError(400, "Vidoe Id is missing");
   }
@@ -177,10 +221,16 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
   //finding the public id using existing video
   const publicId = getPublicIdFromUrl(existingVideo.thumbnail);
+  const videoPublicId = getPublicIdFromUrl(existingVideo.videoFile);
 
   // Delete thumbnail from Cloudinary if it exists
   if (publicId) {
     await cloudinary.uploader.destroy(publicId);
+  }
+  if (videoPublicId) {
+    await cloudinary.uploader.destroy(videoPublicId, {
+      resource_type: "video",
+    });
   }
 
   // Delete the video document from MongoDB
@@ -192,8 +242,8 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  if(!videoId){
-    throw new apiError(400 , "Video id is missing")
+  if (!videoId) {
+    throw new apiError(400, "Video id is missing");
   }
 
   //Find the video
@@ -202,21 +252,21 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     throw new apiError(404, "Video not found");
   }
 
-   // Toggle the publish status
+  // Toggle the publish status
   video.isPublished = !video.isPublished;
 
-   // Save the updated video
+  // Save the updated video
   await video.save();
 
-  return res.status(200).json(
-    new apiResponse(
-      200,
-      { isPublished: video.isPublished },
-      `Video has been ${video.isPublished ? "published" : "unpublished"} successfully`
-    )
-  );
-
-
+  return res
+    .status(200)
+    .json(
+      new apiResponse(
+        200,
+        { isPublished: video.isPublished },
+        `Video has been ${video.isPublished ? "published" : "unpublished"} successfully`
+      )
+    );
 });
 
 export {
@@ -226,4 +276,5 @@ export {
   updateVideo,
   deleteVideo,
   togglePublishStatus,
+  getPublishedVideos,
 };

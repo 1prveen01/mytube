@@ -286,6 +286,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
       $match: {
         likedBy: userId,
         video: { $ne: null },
+        type: "like"
       },
     },
     {

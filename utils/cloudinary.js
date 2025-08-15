@@ -46,4 +46,4 @@ const getAutoCropUrl = (publicId, width = 500, height = 500) => {
   });
 };
 
-export { uploadOnCloudinary, getOptimizedUrl, getAutoCropUrl };
+export { uploadOnCloudinary, getOptimizedUrl, getAutoCropUrl ,  cloudinary };

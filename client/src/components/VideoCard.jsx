@@ -3,9 +3,10 @@ import React from 'react'
 
 const VideoCard = ({video}) => {
   return (
-    <div className="card bg-teal-50 text-black font-medium rounded-md mx-8 my-2 w-86 shadow-sm">
+    <div className="card bg-teal-50 text-black font-medium rounded-md  w-86 ">
   <figure>
     <img
+    className='object-cover'
       src={video.thumbnail }
       alt={video.title} />
   </figure>

@@ -25,3 +25,8 @@ export const getLikeStatus = async(videoId) =>{
     const res = await axiosInstance.get(`/likes/get-video-like-status/${videoId}`)
     return res.data.data;
 } 
+
+export const getLikedVideos = async() =>{
+    const res = await axiosInstance.get(`/likes/liked-videos`)
+    return res.data.data;
+}

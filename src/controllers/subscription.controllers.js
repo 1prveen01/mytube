@@ -11,7 +11,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
   if (!userId) {
     throw new apiError(400, "user id is missing");
   }
-  // TODO: toggle subscription
+  //toggle subscription
   if (!channelId) {
     throw new apiError(400, "channel id is missing");
   }
@@ -26,44 +26,96 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     channel: channelId,
     subscriber: userId,
   });
+
+  let isSubscribed;
+
   let message = "";
   if (existingSubscription) {
     await Subscription.deleteOne({ _id: existingSubscription._id });
+    isSubscribed = false;
     message = "channel unsubscribed successfully";
   } else {
     await Subscription.create({ subscriber: userId, channel: channelId });
+    isSubscribed = true;
     message = "channel subscribed successfully";
   }
+  const subscribersCount = await Subscription.countDocuments({
+    channel: channelId,
+  });
 
-  return res.status(200).json(new apiResponse(200, null, message));
+  return res
+    .status(200)
+    .json(new apiResponse(200, { subscribersCount, isSubscribed }, message));
 });
 
-// controller to return subscriber list of a channel
-const getUserChannelSubscribers = asyncHandler(async (req, res) => {
+const getSubscriptionStatus = asyncHandler(async (req, res) => {
   const { channelId } = req.params;
-  console.log("user id :" , req.user)
-  if (!channelId) {
-    throw new apiError(400, "channel id is missing");
+  const userId = req.user?._id;
+
+  //for own channel
+  if (userId && channelId.toString() === userId.toString()) {
+    return res
+      .status(200)
+      .json(
+        new apiResponse(
+          200,
+          { subscribersCount: 0, isSubscribed: false },
+          "Own channel"
+        )
+      );
   }
 
-  //list of subscribers
-  const subscibers = await Subscription.find({ channel: channelId })
-    .populate("subscriber", "username avatar fullName")
-    .sort({ createdAt: -1 });
+  const subscribersCount = await Subscription.countDocuments({
+    channel: channelId,
+  });
 
-    const totalSubscribers = subscibers.length
-//-----------------> Alternate method for totalSubscribers <-----------------------
-//   const totalSubscriber = await Subscription.count({ channel: channelId });
-//   if (!totalSubscriber) {
-//     throw new apiError(400, "unable to fetch totalsubscriber");
-//   }
+  // Check if the current user is subscribed
+  let isSubscribed = false;
+  if (userId) {
+    const existingSubscription = await Subscription.findOne({
+      channel: channelId,
+      subscriber: userId,
+    });
+    isSubscribed = !!existingSubscription;
+  }
 
   return res
     .status(200)
     .json(
       new apiResponse(
         200,
-        {subscibers, totalSubscribers},
+        { subscribersCount, isSubscribed },
+        "Subscription status fetched successfully"
+      )
+    );
+});
+
+// controller to return subscriber list of a channel
+const getUserChannelSubscribers = asyncHandler(async (req, res) => {
+  const { channelId } = req.params;
+  console.log("user id :", req.user);
+  if (!channelId) {
+    throw new apiError(400, "channel id is missing");
+  }
+
+  //list of subscribers
+  const subscribers = await Subscription.find({ channel: channelId })
+    .populate("subscriber", "username avatar fullName")
+    .sort({ createdAt: -1 });
+
+  const totalSubscribers = subscribers.length;
+  //-----------------> Alternate method for totalSubscribers <-----------------------
+  //   const totalSubscriber = await Subscription.count({ channel: channelId });
+  //   if (!totalSubscriber) {
+  //     throw new apiError(400, "unable to fetch totalsubscriber");
+  //   }
+
+  return res
+    .status(200)
+    .json(
+      new apiResponse(
+        200,
+        { subscibers, totalSubscribers },
         "Subscribers fetched successfully"
       )
     );
@@ -72,20 +124,34 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
   const { subscriberId } = req.params;
-   if (!subscriberId || !mongoose.Types.ObjectId.isValid(subscriberId)) {
+  if (!subscriberId || !mongoose.Types.ObjectId.isValid(subscriberId)) {
     throw new apiError(400, "Invalid or missing subscriber ID");
   }
 
   //list of subscribed channel
-  const subscribedChannel = await Subscription.find({subscriber: subscriberId}).populate("owner" , "username avatar fullName").sort({createdAt: -1})
+  const subscribedChannel = await Subscription.find({
+    subscriber: subscriberId,
+  })
+    .populate("owner", "username avatar fullName")
+    .sort({ createdAt: -1 });
 
   //total number of subscribed Channel
   const totalSubscribedChannel = subscribedChannel.length;
 
-  return res.status(200).json(new apiResponse(200  ,{subscribedChannel , totalSubscribedChannel}, 
-    "Subscribed Channel fetched Successfully"
-  ))
-
+  return res
+    .status(200)
+    .json(
+      new apiResponse(
+        200,
+        { subscribedChannel, totalSubscribedChannel },
+        "Subscribed Channel fetched Successfully"
+      )
+    );
 });
 
-export { toggleSubscription, getUserChannelSubscribers, getSubscribedChannels };
+export {
+  toggleSubscription,
+  getUserChannelSubscribers,
+  getSubscribedChannels,
+  getSubscriptionStatus,
+};
