@@ -115,7 +115,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     .json(
       new apiResponse(
         200,
-        { subscibers, totalSubscribers },
+        { subscribers, totalSubscribers },
         "Subscribers fetched successfully"
       )
     );

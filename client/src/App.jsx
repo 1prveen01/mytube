@@ -9,6 +9,11 @@ import Home from './pages/home/Home.jsx'
 import VideoPlayer from './pages/videoPlayer/VideoPlayer.jsx'
 import LikedVideos from './pages/likedVideos/LikedVideos.jsx'
 import PublishedVideos from './pages/PublishedVideos.jsx'
+import PublishPage from './pages/publish/PublishPage.jsx'
+import SubscribedChannelsPage from './pages/subscribedChannelsPage/subscribedChannelsPage.jsx'
+
+
+
 
 
 function App() {
@@ -27,6 +32,8 @@ function App() {
         <Route path="/video/:videoId" element = {<VideoPlayer />} />
         <Route path='/likedVideos' element={<LikedVideos />} />
         <Route path= '/publishedVideos' element = {<PublishedVideos />} />
+        <Route path="/publishPage" element={<PublishPage />} />
+        <Route path='/subscribedChannelList' element={<SubscribedChannelsPage />} />
         
       </Routes>
 

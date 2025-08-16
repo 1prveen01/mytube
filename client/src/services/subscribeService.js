@@ -10,3 +10,13 @@ export const getSubscriptionStatus = async(channelId) =>{
     const res = await axiosInstance.get(`/subscriptions/get-subscription-status/${channelId}`);
     return res.data.data;
 }
+
+export const getUserChannelSubscribersList = async(channelId) =>{
+    const res = await axiosInstance.get(`/subscriptions/get-user-channel-subscribers/${channelId}`)
+    return res.data.data;
+}
+
+export const getSubscribedChannelsList = async(subscriberId) =>{
+    const res = await axiosInstance.get(`/subscriptions/get-subscribed-channels/${subscriberId}`);
+    return res.data.data;
+}
