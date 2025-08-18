@@ -36,9 +36,10 @@ const [channels, setChannels] = useState([]);
             key={channel._id}
             className="p-4 border flex flex-row justify-start items-center rounded-lg shadow hover:shadow-lg"
           >
+            <img src={channel.owner.avatar} alt="" />
             <div className='flex flex-col items-center'>
-             <h2 className="text-lg font-semibold">hello</h2>
-            <p className="text-sm text-gray-600">this is it</p>
+             <h2 className="text-lg font-semibold">{channel.fullName}</h2>
+            <p className="text-sm text-gray-600">{channel.usernmae}</p>
            </div>
           </div>
         ))}

@@ -11,6 +11,7 @@ import LikedVideos from './pages/likedVideos/LikedVideos.jsx'
 import PublishedVideos from './pages/PublishedVideos.jsx'
 import PublishPage from './pages/publish/PublishPage.jsx'
 import SubscribedChannelsPage from './pages/subscribedChannelsPage/subscribedChannelsPage.jsx'
+import PlaylistsPage from './pages/playlist/PlaylistsPage.jsx'
 
 
 
@@ -34,6 +35,7 @@ function App() {
         <Route path= '/publishedVideos' element = {<PublishedVideos />} />
         <Route path="/publishPage" element={<PublishPage />} />
         <Route path='/subscribedChannelList' element={<SubscribedChannelsPage />} />
+        <Route path='/playlist' element={<PlaylistsPage />} />
         
       </Routes>
 
