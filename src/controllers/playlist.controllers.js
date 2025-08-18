@@ -3,7 +3,6 @@ import { Playlist } from "../models/playlists.model.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { apiError } from "../../utils/apiError.js";
 import { apiResponse } from "../../utils/apiResponse.js";
-import { Video } from "../models/videos.model.js";
 
 const createPlaylist = asyncHandler(async (req, res) => {
   const { name, description } = req.body;
@@ -26,7 +25,6 @@ const createPlaylist = asyncHandler(async (req, res) => {
   return res
     .status(201)
     .json(new apiResponse(201, playlists, "Playlist is created successfully"));
-  //TODO: create playlist
 });
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
@@ -162,8 +160,8 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
   }
 
   playlist.videos = playlist.videos.filter(
-  (id) => id.toString() !== videoId.toString()
-);
+    (id) => id.toString() !== videoId.toString()
+  );
   await playlist.save();
   return res
     .status(200)
@@ -187,7 +185,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     throw new apiError(403, "You are not allowed to delete this playlist");
   }
 
-  const deletePlaylist = await Playlist.deleteOne({_id : playlistId});
+  const deletePlaylist = await Playlist.deleteOne({ _id: playlistId });
 
   return res
     .status(200)

@@ -1,40 +1,43 @@
 import React, { useState } from "react";
+import { createPlaylist } from "../../services/playlistService";
 
-const PlaylistForm = ({ onSubmit, initialData = {}, buttonText = "Create" }) => {
-  const [title, setTitle] = useState(initialData.title || "");
-  const [description, setDescription] = useState(initialData.description || "");
 
-  const handleSubmit = (e) => {
+const PlaylistForm = ({ onSuccess }) => {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({ title, description });
-    setTitle("");
-    setDescription("");
+    try {
+      const data = await createPlaylist({ name, description });
+      onSuccess(data); // pass playlist back to parent
+      setName("");
+      setDescription("");
+    } catch (error) {
+      console.error("Error creating playlist:", error);
+    }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4 p-4 border rounded-xl shadow-md"
-    >
+    <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl">
       <input
         type="text"
-        placeholder="Playlist Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className="w-full p-2 border rounded-lg"
-        required
+        placeholder="Playlist Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="border rounded-lg p-2 w-full"
       />
       <textarea
-        placeholder="Playlist Description"
+        placeholder="Description"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        className="w-full p-2 border rounded-lg"
+        className="border rounded-lg p-2 w-full"
       />
       <button
         type="submit"
-        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-800"
       >
-        {buttonText}
+        Create Playlist
       </button>
     </form>
   );

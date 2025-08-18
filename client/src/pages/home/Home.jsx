@@ -23,26 +23,19 @@ const Home = () => {
         console.log("Error fetching videos: ", error)
       }
     }
-
     loadVideos();
-
-
   }, [page])
 
   return (
     <Layout>
       <div className='flex-col flex justify-start'>
         <h2 className='text-white font-semibold text-2xl mx-8 mt-4'>Videos</h2>
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-4 p-2'>
-
-          <div>
+        <div className='grid sm:grid-cols-1 md:grid-cols-2  lg:grid-cols-3  gap-4 p-2'>
             {videos.map((video) => (
               <Link to={`/video/${video._id}`}>
                 <VideoCard key={video._id} video={video} />
               </Link>
             ))}
-          </div>
-
         </div>
       </div>
     </ Layout >

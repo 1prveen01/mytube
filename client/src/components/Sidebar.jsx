@@ -3,11 +3,13 @@ import React from 'react';
 import { FaHome } from "react-icons/fa";
 import { BiSolidLike } from "react-icons/bi";
 import { FaHistory } from "react-icons/fa";
-import { FaVideo } from "react-icons/fa";
 import { BiSolidMessageSquareDetail } from "react-icons/bi";
 import { MdSubscriptions } from "react-icons/md";
 import { BiSupport } from "react-icons/bi";
 import { NavLink } from 'react-router-dom';
+import { CgPlayList } from "react-icons/cg";
+import { RiUploadCloud2Fill } from "react-icons/ri";
+import { RiPlayListAddLine } from "react-icons/ri";
 
 
 const Sidebar = () => {
@@ -21,7 +23,7 @@ const Sidebar = () => {
                     <FaHome />
                     <span className='mx-2'>Home</span>
                 </NavLink>
-                <NavLink to="/liked" className={({ isActive }) =>
+                <NavLink to="/likedVideos" className={({ isActive }) =>
                     `flex items-center px-2 py-1 text-lg rounded-md cursor-pointer 
                    hover:bg-gray-400 hover:text-gray-900
                   ${isActive ? "bg-gray-300 text-gray-900 font-semibold" : "text-white"}`}>
@@ -29,34 +31,34 @@ const Sidebar = () => {
                     <span className='mx-2'>Liked Videos</span>
                 </NavLink>
 
-                <NavLink to="/" className={({ isActive }) =>
+                <NavLink to="/publishedVideos" className={({ isActive }) =>
                     `flex items-center px-2 py-1 text-lg rounded-md cursor-pointer 
                    hover:bg-gray-400 hover:text-gray-900
                      ${isActive ? "bg-gray-300 text-gray-900 font-semibold" : "text-white"}`}>
-                    <FaHistory />
+                    <RiUploadCloud2Fill />
                     <span className='mx-2'>Uploaded Videos</span>
-                </NavLink>             
-                
-                   <NavLink to="/liked" className={({ isActive }) =>
+                </NavLink>
+
+                <NavLink to="/dashboard/profile" className={({ isActive }) =>
                     `flex items-center px-2 py-1 text-lg rounded-md cursor-pointer 
                      hover:bg-gray-400 hover:text-gray-900
                     ${isActive ? "bg-gray-300 text-gray-900 font-semibold" : "text-white"}`}>
                     <MdSubscriptions />
                     <span className='mx-2'>My Channel</span>
                 </NavLink>
-                <NavLink to="/liked" className={({ isActive }) =>
+                <NavLink to="/subscribedChannelList" className={({ isActive }) =>
                     `flex items-center px-2 py-1 text-lg rounded-md cursor-pointer 
                      hover:bg-gray-400 hover:text-gray-900
                     ${isActive ? "bg-gray-300 text-gray-900 font-semibold" : "text-white"}`}>
                     <MdSubscriptions />
                     <span className='mx-2'>Subscriptions</span>
                 </NavLink>
-                <NavLink to="/liked" className={({ isActive }) =>
+                <NavLink to="/playlist" className={({ isActive }) =>
                     `flex items-center px-2 py-1 text-lg rounded-md cursor-pointer
                      hover:bg-gray-400 hover:text-gray-900
                      ${isActive ? "bg-gray-300 text-gray-900 font-semibold" : "text-white"}`}>
-                    <BiSolidMessageSquareDetail />
-                    <span className='mx-2'>Tweets</span>
+                    <RiPlayListAddLine  />
+                    <span className='mx-2'>Playlist</span>
                 </NavLink>
 
             </ul>

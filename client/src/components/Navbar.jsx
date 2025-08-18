@@ -1,15 +1,18 @@
 import React from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useNavigate } from 'react-router-dom';
+import { IoAddSharp } from "react-icons/io5";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
+
+
   return (
     <nav className="w-full fixed top-0 left-0  bg-gray-900 z-50 ">
       <div className="max-w-[1440px] mx-auto flex items-center justify-between px-6 py-4 overflow-hidden">
-        
+
         <span className="text-3xl font-semibold text-white whitespace-nowrap">
           myTube
         </span>
@@ -26,10 +29,17 @@ const Navbar = () => {
 
         <div className='flex flex-row'>
           <button
-            className="bg-blue-600 px-3 py-1 mx-2 text-center text-white hover:bg-blue-800 rounded"
-            onClick={logout}
+            className="bg-gray-600 px-3 py-1 mx-2 text-center flex flex-row items-center justify-center text-white hover:bg-gray-700 rounded"
+            onClick={() => navigate("/playlist")}
           >
-            upload video
+            <IoAddSharp className='text-2xl' />
+            <h2 className='text-md'>Create</h2>
+          </button>
+          <button
+            className="bg-blue-600 px-3 py-1 mx-2 text-center text-white hover:bg-blue-800 rounded"
+            onClick={() => navigate('/publishPage')}
+          >
+            Upload video
           </button>
           <button
             className="bg-red-600 px-3 mx-2 py-1 text-center text-white hover:bg-red-800 rounded"
