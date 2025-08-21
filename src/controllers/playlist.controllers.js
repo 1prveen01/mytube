@@ -45,6 +45,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
     owner: userId,
   })
     .populate("owner", "username avatar fullName")
+    .populate("videos", "thumbnail title")
     .skip(skip)
     .limit(Number(limit))
     .sort({ createdAt: -1 });
@@ -61,8 +62,6 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
       "Playlists fetched successfully"
     )
   );
-
-  //TODO: get user playlists
 });
 
 const getPlaylistById = asyncHandler(async (req, res) => {
@@ -77,18 +76,18 @@ const getPlaylistById = asyncHandler(async (req, res) => {
     throw new apiError(400, "Invalid Playlist ID format");
   }
   //finding playlist
-  const playlist = await Playlist.findById(playlistId).populate(
-    "owner",
-    "username  fullName avatar"
-  );
+  const playlist = await Playlist.findById(playlistId)
+    .populate("owner", "username  fullName avatar")
+    .populate("videos");
+
   if (!playlist) {
     throw new apiError(404, "playlist not found");
   }
 
   return res
     .status(200)
-    .json(new apiResponse(200, playlist, "Playlist fetched successfully"));
-  //TODO: get playlist by id
+    .json(new apiResponse(200, {playlist}, "Playlist fetched successfully"));
+  
 });
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {

@@ -1,29 +1,36 @@
-import React from 'react';
-import Navbar from './Navbar';
-import Sidebar from './Sidebar';
+import React, { useState } from "react";
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
 
 const Layout = ({ children }) => {
-    return (
-        <div className="flex h-screen w-screen overflow-hidden bg-black text-white">
-            {/* Sidebar - fixed width */}
-            <div className="w-60 border-2 border-green-600 bg-[#1E293B]">
-                <Sidebar />
-            </div>
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-            {/* Main Content Area */}
-            <div className="flex-1 flex flex-col">
-                {/* Navbar */}
-                <div className="h-16 bg-[#1E293B]">
-                    <Navbar />
-                </div>
+  return (
+    <div className="flex h-screen w-screen overflow-hidden bg-black text-white">
+      {/* Sidebar */}
+      <div
+        className={`
+          fixed inset-y-0 left-0 z-40 w-60 transform bg-[#1E293B] border-r-2 border-green-600
+          transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0 md:static md:flex-shrink-0
+        `}
+      >
+        <Sidebar />
+      </div>
 
-                {/* Page Content */}
-                <main className="flex-1 flex  overflow-auto bg-black">
-                    {children}
-                </main>
-            </div>
+      {/* Main Content */}
+      <div className="flex flex-1 flex-col">
+        {/* Navbar */}
+        <div className="h-16 bg-[#1E293B] flex items-center">
+          <Navbar onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
         </div>
-    );
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-auto bg-black p-2">{children}</main>
+      </div>
+    </div>
+  );
 };
 
 export default Layout;

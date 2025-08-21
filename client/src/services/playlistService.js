@@ -1,5 +1,5 @@
 
-import axiosInstance from "../utils/axios"
+import axiosInstance from "../utils/axios.js"
 
 
 export const createPlaylist = async(playlistData) =>{
@@ -8,22 +8,26 @@ export const createPlaylist = async(playlistData) =>{
 }
 
 export const getUserPlaylists = async() =>{
-    const res = await axiosInstance.get(`playlists/get-user-playlist`)
+    const res = await axiosInstance.get(`/playlists/get-user-playlist`)
     return res.data.data;
 }
 
+export const getPlaylistById = async(playlistId) =>{
+    const res = await axiosInstance.get(`/playlists/get-playlist-by-id/${playlistId}`);
+    return res.data.data;
+}
 export const updatePlaylist = async(playlistId , payload) =>{
-    const res = await axiosInstance.patch(`playlists/update-playlist/${playlistId}`,payload)
+    const res = await axiosInstance.patch(`/playlists/update-playlist/${playlistId}`,payload)
     return res.data.data;
 }
 
 export const addVideoToPlaylist = async(playlistId , videoId) =>{
-    const res = await axiosInstance.get(`/playlists/add-video-to-playlist/${playlistId}/${videoId}`);
+    const res = await axiosInstance.patch(`/playlists/add-video-to-playlist/${playlistId}/${videoId}`);
     return res.data.data;
 }
 
 export const removeVideoFromPlaylist = async(playlistId , videoId) =>{
-    const res = await axiosInstance.patch(`/playlists/remove-video-from-playlist/${playlistId}/${videoId}}`);
+    const res = await axiosInstance.patch(`/playlists/remove-video-from-playlist/${playlistId}/${videoId}`);
     return res.data.data;
 }
 

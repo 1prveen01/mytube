@@ -1,15 +1,15 @@
 import React from 'react'
 import { AiFillLike } from "react-icons/ai";
 import { AiFillDislike } from "react-icons/ai";
-import CommentList from './CommentList.jsx';
-import {  useNavigate, useParams } from 'react-router-dom';
+import CommentList from '../CommentList.jsx';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react'
-import { addComment, getComment } from '../services/commentService.js';
-import { getLikeStatus, postDislikeInVideo, postLikeInVideo, } from '../services/likeService.js';
-import SubscribeButton from './SubscribeButton.jsx';
-import { getSubscriptionStatus } from '../services/subscribeService.js';
-import { togglesubscribeChannel } from '../services/subscribeService.js';
-
+import { addComment, getComment } from '../../services/commentService.js';
+import { getLikeStatus, postDislikeInVideo, postLikeInVideo, } from '../../services/likeService.js';
+import { getSubscriptionStatus } from '../../services/subscribeService.js';
+import { togglesubscribeChannel } from '../../services/subscribeService.js';
+import SubscribeButton from '../SubscribeButton.jsx';
+import AddToPlaylistModal from '../playlist/AddToPlaylistModel.jsx';
 
 
 
@@ -33,6 +33,7 @@ const VideoPlayerCard = ({ video }) => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscriberCount, setSubscriberCount] = useState(0);
   const [loadingSubscribe, setLoadingSubscribe] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   // Fetch subscription status on mount
   useEffect(() => {
@@ -115,7 +116,7 @@ const VideoPlayerCard = ({ video }) => {
   const navigate = useNavigate();
 
   //handleImage
-  const handleImage = () =>{
+  const handleImage = () => {
     navigate(`/dashboard/profile`)
   }
 
@@ -156,11 +157,8 @@ const VideoPlayerCard = ({ video }) => {
     }
   }
 
-
-
-
   return (
-    <div className='flex flex-col h-screen'>
+    <div className='flex flex-col  md:p-4 lg:p-6 h-screen'>
 
       {/* //upper half for video */}
       <div className='h-1/2 w-full'>
@@ -170,14 +168,29 @@ const VideoPlayerCard = ({ video }) => {
       {/* //lower half for comments and details */}
       <div className='h-1/2 w-full'>
         {/* video title and description subscribe like and dislike */}
-        <div className='flex flex-col  border-2 border-red-500 my-4'>
-          <h2 className='text-3xl font-medium'>{video.title}</h2>
-          <h3 className='text-sm font-regular'>{video.description}</h3>
 
+        <div className='flex flex-row border rounded p-2 justify-between items-center  my-4'>
+          <div className='flex flex-col'>
+            <h2 className='text-3xl font-medium'>{video.title}</h2>
+            <h3 className='text-sm font-regular'>{video.description}</h3>
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-white text-black font-semibold justify-center items-center px-4 rounded-3xl py-2"
+          >
+            + Save to Playlist
+          </button>
         </div>
 
+        {showModal && (
+          <AddToPlaylistModal
+            videoId={video._id}
+            onClose={() => setShowModal(false)}
+          />
+        )}
+
         {/* parent div */}
-        <div className='flex border-2 justify-between  border-green-500 flex-row '>
+        <div className='flex  justify-between   flex-row '>
           {/* name image */}
           <div className='flex items-center  flex-row'>
             <img className='w-14 h-14 cursor-pointer rounded-full' src={video.owner.avatar} onClick={handleImage} alt="" />
@@ -190,14 +203,14 @@ const VideoPlayerCard = ({ video }) => {
           </div>
 
           {/* like dislike and subscribe*/}
-          <div className='flex  flex-row items-center'>
+          <div className='flex   flex-row items-center'>
             <div className='mx-4'>
               <button
                 onClick={handleSubscribe}
                 disabled={loadingSubscribe}
                 className={`flex flex-row font-semibold justify-center items-center px-4 rounded-3xl py-2 transition ${isSubscribed
-                    ? "bg-gray-300 text-black hover:bg-gray-300"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
+                  ? "bg-gray-300 text-black hover:bg-gray-300"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
                   }`}
               >
                 {loadingSubscribe
@@ -208,7 +221,7 @@ const VideoPlayerCard = ({ video }) => {
               </button>
             </div>
 
-            <div className='flex flex-row  bg-white justify-center items-center px-4 rounded-3xl py-2'>
+            <div className='flex flex-row  bg-white justify-center items-center border px-4 rounded-3xl py-2'>
               <AiFillLike
                 onClick={handleLike}
                 className={`text-2xl cursor-pointer ${likeState.liked ? "text-blue-500" : "text-black"}`}
@@ -225,7 +238,7 @@ const VideoPlayerCard = ({ video }) => {
 
         {/* Comment box area */}
         <h2 className='text-3xl mt-2'>Comments</h2>
-        <div className='flex flex-row justify-start items-center border-2 border-red-500 mt-2'>
+        <div className='flex flex-row justify-start items-center  mt-2'>
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
@@ -245,7 +258,7 @@ const VideoPlayerCard = ({ video }) => {
 
 
         {/* show comments  */}
-        <div className='w-full border-2 mt-2 border-white '>
+        <div className='w-full  mt-2 '>
           <CommentList comments={comment} />
 
         </div>

@@ -1,4 +1,5 @@
-// src/pages/PublishPage.jsx
+
+
 import React from "react";
 import PublishVideoForm from "../../components/PublishVideoForm";
 import Layout from "../../components/Layout";

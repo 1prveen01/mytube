@@ -8,11 +8,11 @@ import Profile from './pages/dashboard/Profile.jsx'
 import Home from './pages/home/Home.jsx'
 import VideoPlayer from './pages/videoPlayer/VideoPlayer.jsx'
 import LikedVideos from './pages/likedVideos/LikedVideos.jsx'
-import PublishedVideos from './pages/PublishedVideos.jsx'
+import PublishedVideos from './pages/publish/PublishedVideos.jsx'
 import PublishPage from './pages/publish/PublishPage.jsx'
 import SubscribedChannelsPage from './pages/subscribedChannelsPage/subscribedChannelsPage.jsx'
 import PlaylistsPage from './pages/playlist/PlaylistsPage.jsx'
-
+import PlaylistDetailsPage from './pages/playlist/PlaylistDetailsPage.jsx'
 
 
 
@@ -27,15 +27,14 @@ function App() {
         <Route path= "/" element = {<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path = "/dashboard/profile" element = {
-            <Profile />
-        } />
+        <Route path = "/dashboard/profile" element = {<Profile />} />
         <Route path="/video/:videoId" element = {<VideoPlayer />} />
         <Route path='/likedVideos' element={<LikedVideos />} />
         <Route path= '/publishedVideos' element = {<PublishedVideos />} />
         <Route path="/publishPage" element={<PublishPage />} />
         <Route path='/subscribedChannelList' element={<SubscribedChannelsPage />} />
         <Route path='/playlist' element={<PlaylistsPage />} />
+        <Route path='/playlist/:playlistId' element={<PlaylistDetailsPage />} />
         
       </Routes>
 

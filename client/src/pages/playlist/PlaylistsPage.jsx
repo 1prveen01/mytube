@@ -1,15 +1,10 @@
-import React, { useEffect, useState } from 'react'
-import PlaylistCard from '../../components/playlist/PlaylistCard'
-import Layout from '../../components/Layout'
-import PlaylistForm from '../../components/playlist/PlaylistForm'
-import { getUserPlaylists } from '../../services/playlistService.js'
-
-
-
+import React, { useEffect, useState } from "react";
+import PlaylistCard from "../../components/playlist/PlaylistCard";
+import Layout from "../../components/Layout";
+import PlaylistForm from "../../components/playlist/PlaylistForm";
+import { getUserPlaylists, removePlaylist } from "../../services/playlistService.js";
 
 const PlaylistsPage = () => {
-
-
   const [playlists, setPlaylists] = useState([]);
 
   useEffect(() => {
@@ -26,45 +21,63 @@ const PlaylistsPage = () => {
   }, []);
 
   const handleAddPlaylist = (newPlaylist) => {
-    setPlaylists((prev) => [newPlaylist, ...prev]); 
+    setPlaylists((prev) => [newPlaylist, ...prev]);
   };
 
   const handleUpdatePlaylist = (updated) => {
-  setPlaylists((prev) =>
-    prev.map((playlist) => (playlist._id === updated._id ? updated : playlist))
-  );
-};
+    setPlaylists((prev) =>
+      prev.map((playlist) => (playlist._id === updated._id ? updated : playlist))
+    );
+  };
+
+  const handleDeletePlaylist = async (playlistId) => {
+    try {
+      await removePlaylist(playlistId);
+      setPlaylists((prev) => prev.filter((p) => p._id !== playlistId));
+    } catch (error) {
+      console.error("Failed to delete the playlist", error);
+    }
+  };
 
   return (
     <Layout>
-      <div className="w-full h-screen px-4 py-2 m-4">
-        <h1 className="mx-8 font-bold text-xl">Create Playlist</h1>
+      <div className="w-full min-h-screen px-4 py-6 sm:px-6 lg:px-10">
+        {/* Page Heading */}
+        <h1 className="font-bold text-2xl sm:text-3xl lg:text-4xl text-white mb-6">
+          Create Playlist
+        </h1>
 
         {/* Playlist Form */}
-        <div className="w-full px-8 py-4">
-          <div className="px-8 py-4 rounded-lg border">
-            <PlaylistForm  onSuccess={handleAddPlaylist}  />
-          </div>
+        <div className="bg-gray-900 rounded-xl border border-gray-700 shadow-md p-4 sm:p-6 mb-10">
+          <PlaylistForm onSuccess={handleAddPlaylist} />
+        </div>
 
-          {/* Playlist List */}
-          <h1 className="mt-6 font-semibold text-lg">My Playlists</h1>
-          <div className="mt-4 grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {playlists.length > 0 ? (
-              playlists.map((playlist) => (
-                <PlaylistCard
-                  key={playlist._id}
-                  playlist={playlist}
-                  onUpdate={handleUpdatePlaylist}
-                  onDelete={(id) => console.log("Delete playlist:", id)}
-                />
-              ))
-            ) : (
-              <p className="text-gray-500">No playlists found.</p>
-            )}
-          </div>
+        {/* Playlist List */}
+        <h2 className="font-semibold text-xl sm:text-2xl text-white mb-4">
+          My Playlists
+        </h2>
+
+        <div className="grid gap-6 
+                        grid-cols-1 
+                        sm:grid-cols-2 
+                        lg:grid-cols-3 
+                        xl:grid-cols-4">
+          {playlists.length > 0 ? (
+            playlists.map((playlist) => (
+              <PlaylistCard
+                key={playlist._id}
+                playlist={playlist}
+                onUpdate={handleUpdatePlaylist}
+                onDelete={handleDeletePlaylist}
+              />
+            ))
+          ) : (
+            <p className="text-gray-400">No playlists found.</p>
+          )}
         </div>
       </div>
     </Layout>
   );
 };
-export default PlaylistsPage
+
+export default PlaylistsPage;

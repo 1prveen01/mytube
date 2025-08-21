@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout.jsx';
+import Layout from '../../components/Layout.jsx';
 import { Link } from 'react-router-dom';
-import { getPublishedVideos, deleteVideobyId } from '../services/videoService.js';
-import VideoCard from '../components/VideoCard.jsx';
-import UpdateVideoForm from '../components/UpdateVideoForm.jsx';
-
+import { getPublishedVideos, deleteVideobyId } from '../../services/videoService.js';
+import VideoCard from '../../components/video/VideoCard.jsx';
+import UpdateVideoForm from '../../components/video/UpdateVideoForm.jsx';
 
 const PublishedVideos = () => {
     const [videos, setVideos] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPage, setTotalPage] = useState(1);
     const limit = 10;
-     const [selectedVideo, setSelectedVideo] = useState(null);
+    const [selectedVideo, setSelectedVideo] = useState(null);
 
     // Fetch videos function
     const fetchPublishedVideos = async () => {
@@ -41,8 +40,6 @@ const PublishedVideos = () => {
         }
     };
 
-    
-
     return (
         <Layout>
             <div className="flex-col flex justify-start">
@@ -50,24 +47,29 @@ const PublishedVideos = () => {
                     Published Videos
                 </h2>
 
-                {/* Video Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-8 mt-4 gap-4 p-2">
+                {/* Video  */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-8 mt-4 gap-6 p-2">
                     {videos.length > 0 ? (
                         videos.map((video) => (
-                            <div key={video._id} className='rounded-2xl bg-teal-50'>
+                            <div
+                                key={video._id}
+                                className="rounded-2xl bg-white shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+                            >
                                 <Link to={`/video/${video._id}`}>
                                     <VideoCard video={video} />
                                 </Link>
-                                <div className='flex flex-row text-black justify-around items-center pb-4'>
+
+                                
+                                <div className="flex justify-around items-center px-4 py-3 border-t bg-gray-50">
                                     <button
-                                    onClick={() => setSelectedVideo(video)}
-                                        className="bg-blue-600 px-3 py-1 mx-2 text-center text-white hover:bg-blue-800 rounded"
+                                        onClick={() => setSelectedVideo(video)}
+                                        className="bg-blue-600 px-4 py-1.5 text-sm text-white cursor-pointer font-medium rounded-lg hover:bg-blue-700 transition"
                                     >
                                         Update
                                     </button>
                                     <button
                                         onClick={() => handleDelete(video._id)}
-                                        className="bg-red-600 px-3 py-1 mx-2 text-center text-white hover:bg-red-800 rounded"
+                                        className="bg-red-600 px-4 py-1.5 text-sm text-white cursor-pointer font-medium rounded-lg hover:bg-red-700 transition"
                                     >
                                         Delete
                                     </button>
@@ -81,9 +83,9 @@ const PublishedVideos = () => {
                     )}
                 </div>
 
-                {/* Pagination Controls */}
+                {/* Pagination  */}
                 {totalPage > 1 && (
-                    <div className="flex justify-center mt-4 space-x-2">
+                    <div className="flex justify-center mt-6 space-x-2">
                         <button
                             onClick={() => setPage((p) => Math.max(p - 1, 1))}
                             disabled={page === 1}
@@ -104,16 +106,16 @@ const PublishedVideos = () => {
                     </div>
                 )}
 
-
-                 {selectedVideo && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
-                    <UpdateVideoForm
-                        video={selectedVideo}
-                        onClose={() => setSelectedVideo(null)}
-                        onUpdated={fetchPublishedVideos}
-                    />
-                </div>
-            )}
+                {/* Update Video Modal */}
+                {selectedVideo && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+                        <UpdateVideoForm
+                            video={selectedVideo}
+                            onClose={() => setSelectedVideo(null)}
+                            onUpdated={fetchPublishedVideos}
+                        />
+                    </div>
+                )}
             </div>
         </Layout>
     );
