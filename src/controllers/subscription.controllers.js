@@ -1,5 +1,4 @@
 import mongoose, { isValidObjectId } from "mongoose";
-import { User } from "../models/users.model.js";
 import { Subscription } from "../models/subscriptions.model.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { apiError } from "../../utils/apiError.js";
@@ -124,30 +123,30 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
   const { subscriberId } = req.params;
+
   if (!subscriberId || !mongoose.Types.ObjectId.isValid(subscriberId)) {
     throw new apiError(400, "Invalid or missing subscriber ID");
   }
 
-  //list of subscribed channel
+  // list of subscribed channels
   const subscribedChannel = await Subscription.find({
     subscriber: subscriberId,
   })
-    .populate("owner", "username avatar fullName")
+    .populate("channel", "username avatar fullName") 
     .sort({ createdAt: -1 });
 
-  //total number of subscribed Channel
+  // total number of subscribed Channels
   const totalSubscribedChannel = subscribedChannel.length;
 
-  return res
-    .status(200)
-    .json(
-      new apiResponse(
-        200,
-        { subscribedChannel, totalSubscribedChannel },
-        "Subscribed Channel fetched Successfully"
-      )
-    );
+  return res.status(200).json(
+    new apiResponse(
+      200,
+      { subscribedChannel, totalSubscribedChannel },
+      "Subscribed Channel fetched Successfully"
+    )
+  );
 });
+
 
 export {
   toggleSubscription,

@@ -63,7 +63,7 @@ const Sidebar = () => {
 
             </ul>
             <ul className='space-y-6 mb-4'>
-                <NavLink to="/liked" className={({ isActive }) =>
+                <NavLink to="/contact" className={({ isActive }) =>
                     `flex items-center px-2 py-1 text-lg rounded-md cursor-pointer 
                      hover:bg-gray-400 hover:text-gray-900
                     ${isActive ? "bg-gray-300 text-gray-900 font-semibold" : "text-white"}`}>

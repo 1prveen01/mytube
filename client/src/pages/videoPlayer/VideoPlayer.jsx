@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { getVideoById } from '../../services/videoService.js';
 
 import VideoPlayerCard from '../../components/video/VideoPlayerCard.jsx'
+import Layout from '../../components/Layout.jsx';
 
 const VideoPlayer = () => {
 
@@ -32,9 +33,14 @@ const VideoPlayer = () => {
   if (!video) return <div className="text-white">Loading...</div>;
 
   return (
+    <Layout >
+
+
     <div className='w-full h-screen'>
       <VideoPlayerCard video={video} />
     </div>
+
+        </Layout>
   )
 }
 

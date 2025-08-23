@@ -1,22 +1,14 @@
 import React from 'react'
-import { AiFillLike } from "react-icons/ai";
-import { AiFillDislike } from "react-icons/ai";
+import { AiFillLike, AiFillDislike } from "react-icons/ai";
 import CommentList from '../CommentList.jsx';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 import { addComment, getComment } from '../../services/commentService.js';
-import { getLikeStatus, postDislikeInVideo, postLikeInVideo, } from '../../services/likeService.js';
-import { getSubscriptionStatus } from '../../services/subscribeService.js';
-import { togglesubscribeChannel } from '../../services/subscribeService.js';
-import SubscribeButton from '../SubscribeButton.jsx';
+import { getLikeStatus, postDislikeInVideo, postLikeInVideo } from '../../services/likeService.js';
+import { getSubscriptionStatus, togglesubscribeChannel } from '../../services/subscribeService.js';
 import AddToPlaylistModal from '../playlist/AddToPlaylistModel.jsx';
 
-
-
-
 const VideoPlayerCard = ({ video }) => {
-
-
   const { videoId } = useParams();
   const [comment, setComment] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -29,14 +21,17 @@ const VideoPlayerCard = ({ video }) => {
     dislikeCount: 0
   });
 
-  //subscribers count
+  // subscribers
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscriberCount, setSubscriberCount] = useState(0);
   const [loadingSubscribe, setLoadingSubscribe] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  // Fetch subscription status on mount
+  const navigate = useNavigate();
+
+  // fetch subscription status only if owner exists
   useEffect(() => {
+    if (!video?.owner?._id) return;
     const fetchStatus = async () => {
       try {
         const res = await getSubscriptionStatus(video.owner._id);
@@ -47,10 +42,10 @@ const VideoPlayerCard = ({ video }) => {
       }
     };
     fetchStatus();
-  }, [video.owner._id]);
+  }, [video?.owner?._id]);
 
   const handleSubscribe = async () => {
-    if (loadingSubscribe) return; // prevent spam clicks
+    if (!video?.owner?._id || loadingSubscribe) return;
     setLoadingSubscribe(true);
     try {
       const { isSubscribed, subscribersCount } = await togglesubscribeChannel(video.owner._id);
@@ -63,8 +58,9 @@ const VideoPlayerCard = ({ video }) => {
     }
   };
 
-  // Fetch like/dislike status
+  // fetch like/dislike status
   useEffect(() => {
+    if (!videoId) return;
     const fetchStatus = async () => {
       try {
         const res = await getLikeStatus(videoId);
@@ -81,7 +77,6 @@ const VideoPlayerCard = ({ video }) => {
     fetchStatus();
   }, [videoId]);
 
-  // Handle Like
   const handleLike = async () => {
     try {
       const { isLiked, likeCount, dislikeCount } = await postLikeInVideo(videoId);
@@ -97,7 +92,6 @@ const VideoPlayerCard = ({ video }) => {
     }
   };
 
-  // Handle Dislike
   const handleDislike = async () => {
     try {
       const { isDisliked, likeCount, dislikeCount } = await postDislikeInVideo(videoId);
@@ -113,63 +107,50 @@ const VideoPlayerCard = ({ video }) => {
     }
   };
 
-  const navigate = useNavigate();
-
-  //handleImage
+  // navigate to profile
   const handleImage = () => {
-    navigate(`/dashboard/profile`)
-  }
+    navigate(`/dashboard/profile`);
+  };
 
   // fetch comments
   useEffect(() => {
     if (!videoId) return;
-
     const loadComment = async () => {
       try {
-        const resComment = await getComment(videoId)
-        setComment(resComment.comments || [])
-
+        const resComment = await getComment(videoId);
+        setComment(resComment.comments || []);
       } catch (error) {
-        console.log("Error in fetching comment: ", error)
+        console.log("Error in fetching comment: ", error);
       }
-    }
-
-    loadComment()
+    };
+    loadComment();
   }, [videoId]);
 
-
-  //adding commments
   const handleComment = async () => {
     if (!commentText.trim()) return;
     try {
-      setLoading(true)
-      await addComment(videoId, commentText)
+      setLoading(true);
+      await addComment(videoId, commentText);
       setCommentText("");
-
-      //re-fetching comments after adding
-      const resComment = await getComment(videoId)
-      setComment(resComment.comments || [])
-
+      const resComment = await getComment(videoId);
+      setComment(resComment.comments || []);
     } catch (error) {
-      console.log("Error adding in comment: ", error)
+      console.log("Error adding in comment: ", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className='flex flex-col  md:p-4 lg:p-6 h-screen'>
-
-      {/* //upper half for video */}
+    <div className='flex flex-col md:p-4 lg:p-6 h-screen'>
+      {/* video */}
       <div className='h-1/2 w-full'>
-        <video autoPlay controls={true} className='h-full w-full' src={video.videoFile}></video>
+        <video autoPlay controls className='h-full w-full' src={video.videoFile}></video>
       </div>
 
-      {/* //lower half for comments and details */}
+      {/* details */}
       <div className='h-1/2 w-full'>
-        {/* video title and description subscribe like and dislike */}
-
-        <div className='flex flex-row border rounded p-2 justify-between items-center  my-4'>
+        <div className='flex flex-row border rounded p-2 justify-between items-center my-4'>
           <div className='flex flex-col'>
             <h2 className='text-3xl font-medium'>{video.title}</h2>
             <h3 className='text-sm font-regular'>{video.description}</h3>
@@ -189,39 +170,49 @@ const VideoPlayerCard = ({ video }) => {
           />
         )}
 
-        {/* parent div */}
-        <div className='flex  justify-between   flex-row '>
-          {/* name image */}
-          <div className='flex items-center  flex-row'>
-            <img className='w-14 h-14 cursor-pointer rounded-full' src={video.owner.avatar} onClick={handleImage} alt="" />
-            <div className='flex flex-col ml-4 justify-between items-start'>
-              <p onClick={handleImage} className='text-md block cursor-pointer font-medium uppercase'>{video.owner.fullName}</p>
-              {/* <p className='block text-sm font-light'>{video.owner.username}</p> */}
-              <p className='text-sm font-light'>{subscriberCount} subscribers</p>
-
-            </div>
+        {/* channel + actions */}
+        <div className='flex justify-between flex-row'>
+          {/* channel info */}
+          <div className='flex items-center flex-row'>
+            {video.owner ? (
+              <>
+                <img
+                  className='w-14 h-14 cursor-pointer rounded-full'
+                  src={video.owner.avatar}
+                  onClick={handleImage}
+                  alt={video.owner.fullName}
+                />
+                <div className='flex flex-col ml-4 justify-between items-start'>
+                  <p onClick={handleImage} className='text-md block cursor-pointer font-medium uppercase'>
+                    {video.owner.fullName}
+                  </p>
+                  <p className='text-sm font-light'>{subscriberCount} subscribers</p>
+                </div>
+              </>
+            ) : (
+              <div className='text-gray-400 italic'>Channel deleted</div>
+            )}
           </div>
 
-          {/* like dislike and subscribe*/}
-          <div className='flex   flex-row items-center'>
-            <div className='mx-4'>
-              <button
-                onClick={handleSubscribe}
-                disabled={loadingSubscribe}
-                className={`flex flex-row font-semibold justify-center items-center px-4 rounded-3xl py-2 transition ${isSubscribed
-                  ? "bg-gray-300 text-black hover:bg-gray-300"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
+          {/* actions */}
+          <div className='flex flex-row items-center'>
+            {video.owner && (
+              <div className='mx-4'>
+                <button
+                  onClick={handleSubscribe}
+                  disabled={loadingSubscribe}
+                  className={`flex flex-row font-semibold justify-center items-center px-4 rounded-3xl py-2 transition ${
+                    isSubscribed
+                      ? "bg-gray-300 text-black hover:bg-gray-300"
+                      : "bg-blue-600 text-white hover:bg-blue-700"
                   }`}
-              >
-                {loadingSubscribe
-                  ? "Loading..."
-                  : isSubscribed
-                    ? `Subscribed `
-                    : `Subscribe `}
-              </button>
-            </div>
+                >
+                  {loadingSubscribe ? "Loading..." : isSubscribed ? `Subscribed` : `Subscribe`}
+                </button>
+              </div>
+            )}
 
-            <div className='flex flex-row  bg-white justify-center items-center border px-4 rounded-3xl py-2'>
+            <div className='flex flex-row bg-white justify-center items-center border px-4 rounded-3xl py-2'>
               <AiFillLike
                 onClick={handleLike}
                 className={`text-2xl cursor-pointer ${likeState.liked ? "text-blue-500" : "text-black"}`}
@@ -236,9 +227,9 @@ const VideoPlayerCard = ({ video }) => {
           </div>
         </div>
 
-        {/* Comment box area */}
+        {/* comments */}
         <h2 className='text-3xl mt-2'>Comments</h2>
-        <div className='flex flex-row justify-start items-center  mt-2'>
+        <div className='flex flex-row justify-start items-center mt-2'>
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
@@ -250,24 +241,19 @@ const VideoPlayerCard = ({ video }) => {
             <button
               onClick={handleComment}
               disabled={loading}
-              className='bg-white text-md px-4 font-medium rounded-3xl py-2   text-black'>
+              className='bg-white text-md px-4 font-medium rounded-3xl py-2 text-black'
+            >
               {loading ? "Posting..." : "Comment"}
             </button>
           </div>
         </div>
 
-
-        {/* show comments  */}
-        <div className='w-full  mt-2 '>
+        <div className='w-full mt-2'>
           <CommentList comments={comment} />
-
         </div>
-
       </div>
-
-
     </div>
-  )
-}
+  );
+};
 
-export default VideoPlayerCard
+export default VideoPlayerCard;

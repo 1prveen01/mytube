@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { getPublishedVideos, deleteVideobyId } from '../../services/videoService.js';
 import VideoCard from '../../components/video/VideoCard.jsx';
 import UpdateVideoForm from '../../components/video/UpdateVideoForm.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import axiosInstance from '../../utils/axios.js';
 
 const PublishedVideos = () => {
     const [videos, setVideos] = useState([]);
@@ -11,11 +13,18 @@ const PublishedVideos = () => {
     const [totalPage, setTotalPage] = useState(1);
     const limit = 10;
     const [selectedVideo, setSelectedVideo] = useState(null);
+    const { user } = useAuth()
+
 
     // Fetch videos function
     const fetchPublishedVideos = async () => {
+
+        if (!user || !user._id) return;
         try {
-            const { videos, total } = await getPublishedVideos({ page, limit });
+            const res = await axiosInstance.get(
+                `/videos/get-published-videos?userId=${user._id}`
+            );
+            const { videos, total } = res.data.data;
             setVideos(videos);
             setTotalPage(Math.ceil(total / limit));
         } catch (error) {
@@ -24,15 +33,17 @@ const PublishedVideos = () => {
     };
 
     useEffect(() => {
-        fetchPublishedVideos();
-    }, [page]);
+        if (user && user._id) {
+            fetchPublishedVideos();
+        }
+    }, [page, user]);
 
     const handleDelete = async (videoId) => {
         if (window.confirm("Are you sure you want to delete this video?")) {
             try {
                 await deleteVideobyId(videoId);
                 alert("Video deleted successfully");
-                fetchPublishedVideos(); 
+                fetchPublishedVideos();
             } catch (error) {
                 console.error("Error deleting video:", error);
                 alert("Failed to delete video");
@@ -49,7 +60,7 @@ const PublishedVideos = () => {
 
                 {/* Video  */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-8 mt-4 gap-6 p-2">
-                    {videos.length > 0 ? (
+                    {Array.isArray(videos) && videos.length > 0 ? (
                         videos.map((video) => (
                             <div
                                 key={video._id}
@@ -59,7 +70,7 @@ const PublishedVideos = () => {
                                     <VideoCard video={video} />
                                 </Link>
 
-                                
+
                                 <div className="flex justify-around items-center px-4 py-3 border-t bg-gray-50">
                                     <button
                                         onClick={() => setSelectedVideo(video)}

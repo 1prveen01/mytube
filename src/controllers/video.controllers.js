@@ -6,10 +6,11 @@ import { uploadOnCloudinary } from "../../utils/cloudinary.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { getPublicIdFromUrl } from "../../utils/getPublicIdFromUrl.js";
 import { cloudinary } from "../../utils/cloudinary.js"
+import { User } from "../models/users.model.js";
+
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
-  //TODO: get all videos based on query, sort, pagination
 
   //create filters
   const filters = {};
@@ -108,6 +109,8 @@ const getVideoById = asyncHandler(async (req, res) => {
     .json(new apiResponse(200, video, "Video fetced successfully"));
 });
 
+
+
 //getting the uploaded video
 const getPublishedVideos = asyncHandler(async (req, res) => {
   const {
@@ -135,10 +138,12 @@ const getPublishedVideos = asyncHandler(async (req, res) => {
   const skip = (Number(page) - 1) * Number(limit);
 
   const videos = await Video.find(filters)
-    .populate("owner", "username avatar fullName")
+    .populate("owner", "username avatar fullName") // brings owner info
     .sort(sortOptions)
     .skip(skip)
     .limit(Number(limit));
+
+  const validVideos = videos.filter(video => video.owner !== null);
 
   const total = await Video.countDocuments(filters);
 
@@ -146,15 +151,16 @@ const getPublishedVideos = asyncHandler(async (req, res) => {
     new apiResponse(
       200,
       {
-        total,
+        total: validVideos.length, // use filtered count
         page: Number(page),
         limit: Number(limit),
-        videos,
+        videos: validVideos,
       },
       "Published videos fetched successfully"
     )
   );
 });
+
 
 const updateVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;

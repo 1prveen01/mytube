@@ -1,46 +1,72 @@
-import React, { useState, useEffect } from 'react'
-import { useAuth } from '../../context/AuthContext.jsx';
-import axiosInstance from '../../utils/axios.js';
-import Layout from '../../components/Layout.jsx';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext.jsx";
+import Layout from "../../components/Layout.jsx";
+import { useNavigate } from "react-router-dom";
+import { deleteUserAccount } from "../../services/userService.js";
+import {
+  getSubscribedChannelsList,
+  getUserChannelSubscribersList,
+} from "../../services/subscribeService.js";
 
 const Profile = () => {
-  const { user, isAuthenticated } = useAuth();
-  const [subscribers, setSubscribers] = useState(0);
-  const [subscribed, setSubscribed] = useState(0);
-  const [tweet, setTweet] = useState(0);
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const [subCount, setSubCount] = useState(0); // my subscribers
+  const [subscribedCount, setSubscribedCount] = useState(0);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user?._id) return;
 
-    // get number of subscribers
-    axiosInstance
-      .get(`/subscriptions/get-user-channel-subscribers/${user._id}`)
-      .then((res) => setSubscribers(res.data.length))
-      .catch((err) => console.log("Error in fetching subscribers: ", err));
+    const fetchSubsData = async () => {
+      try {
+        
+        const subsRes = await getUserChannelSubscribersList(user._id);
+        setSubCount(subsRes?.totalSubscribers || 0);
 
-    // get number of subscribed channels
-    axiosInstance
-      .get(`subscriptions/get-subscribed-channels/${user._id}`)
-      .then((res) => setSubscribed(res.data.length))
-      .catch((err) => console.log("Error in fetching subscribed channels: ", err));
+        const subscribedRes = await getSubscribedChannelsList(user._id);
+        setSubscribedCount(subscribedRes?.totalSubscribedChannel || 0);
+      } catch (err) {
+        console.error("Error fetching subscription data:", err);
+      }
+    };
 
-    // get tweet count
-    axiosInstance
-      .get(`tweets/get-user-tweets/${user._id}`)
-      .then((res) => setTweet(res.data.totalTweet))
-      .catch((err) => console.log("Error in fetching total tweets count : ", err));
+    fetchSubsData();
   }, [user]);
 
   if (!isAuthenticated) {
-    return <div className="text-white p-4">Please login to view your profile.</div>;
+    return (
+      <div className="text-white p-4">
+        Please login to view your profile.
+      </div>
+    );
   }
+
+  const handleDelete = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete your account? This cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await deleteUserAccount();
+      await logout();
+      navigate("/login", { replace: true });
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Failed to delete account.");
+    }
+  };
 
   return (
     <Layout>
       <div className="flex justify-center items-center p-4 sm:p-8 min-h-[calc(100vh-4rem)] w-full">
         <div className="flex flex-col md:flex-row w-full max-w-4xl border-2 border-gray-900 rounded-md p-4 sm:p-6 md:p-8 bg-gray-800">
-          
-          {/* Avatar Section */}
+          {/* Profile Picture */}
           <div className="flex-shrink-0 h-[150px] w-[150px] sm:h-[200px] sm:w-[200px] mx-auto md:mx-0">
             <img
               className="h-full w-full object-cover rounded-md"
@@ -58,17 +84,27 @@ const Profile = () => {
               Channel Name: <span className="font-medium">{user.username}</span>
             </h3>
             <div className="mt-2 space-y-1 text-sm sm:text-base">
-              <p>Subscribers: <span className="font-medium">{subscribers}</span></p>
-              <p>Subscribed: <span className="font-medium">{subscribed}</span></p>
-              <p>Tweets: <span className="font-medium">{tweet}</span></p>
+              <p>
+                Subscribers: <span className="font-medium">{subCount}</span>
+              </p>
+              <p>
+                Subscribed:{" "}
+                <span className="font-medium">{subscribedCount}</span>
+              </p>
             </div>
 
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-2 mt-4">
-              <button className="bg-gray-700 rounded-md px-4 py-2 text-white text-lg hover:bg-gray-600 transition">
+              <button
+                onClick={() => navigate("/updateUserDetails")}
+                className="bg-gray-700 rounded-md px-4 py-2 text-white text-lg hover:bg-gray-600 transition"
+              >
                 Edit
               </button>
-              <button className="bg-red-600 rounded-md px-4 py-2 text-white text-lg hover:bg-red-500 transition">
+              <button
+                onClick={handleDelete}
+                className="bg-red-600 rounded-md px-4 py-2 text-white text-lg hover:bg-red-500 transition"
+              >
                 Delete
               </button>
             </div>
@@ -76,7 +112,7 @@ const Profile = () => {
         </div>
       </div>
     </Layout>
-  )
-}
+  );
+};
 
-export default Profile
+export default Profile;

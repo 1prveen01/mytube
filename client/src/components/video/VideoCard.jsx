@@ -31,7 +31,7 @@ const VideoCard = ({ video }) => {
 
         {/* Footer actions */}
         <div className="flex justify-between items-center mt-auto text-sm text-gray-800">
-          <p>{video.views} views</p>
+          
           <p>{Number(video.duration).toFixed(2)}</p>
         </div>
       </div>

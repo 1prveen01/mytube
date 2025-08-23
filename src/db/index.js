@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { DB_NAME } from "../constant.js";
-import { Like } from "../models/like.model.js";
+
+
 const connectDB = async () => {
   try {
     const connectionInstance = await mongoose.connect(

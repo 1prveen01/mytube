@@ -1,15 +1,23 @@
+// SubscribedChannelsPage.jsx
 import React, { useState, useEffect } from 'react';
-import { getUserChannelSubscribersList } from '../../services/subscribeService.js';
+import { getSubscribedChannelsList } from '../../services/subscribeService.js';
 import Layout from '../../components/Layout.jsx';
+import { useAuth } from '../../context/AuthContext.jsx'; 
+import { useNavigate } from 'react-router-dom';
 
-const SubscribedChannelsPage = ({ subscriberId }) => {
+
+const SubscribedChannelsPage = () => {
+    const navigate = useNavigate()
+    const { user } = useAuth(); 
+    const subscriberId = user?._id;
+
     const [channels, setChannels] = useState([]);
     const [total, setTotal] = useState(0);
 
     useEffect(() => {
         const fetchSubscribedChannels = async () => {
             try {
-                const data = await getUserChannelSubscribersList(subscriberId);
+                const data = await getSubscribedChannelsList(subscriberId); 
                 setChannels(data.subscribedChannel || []);
                 setTotal(data.totalSubscribedChannel || 0);
             } catch (error) {
@@ -20,6 +28,10 @@ const SubscribedChannelsPage = ({ subscriberId }) => {
         if (subscriberId) fetchSubscribedChannels();
     }, [subscriberId]);
 
+     const handleChannelClick = (channelId) => {
+        navigate(`/channelDashboard/${channelId}`);
+    };
+
     return (
         <Layout>
             <div className="p-6">
@@ -29,32 +41,32 @@ const SubscribedChannelsPage = ({ subscriberId }) => {
 
                 {channels.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {channels.map((channel) => (
+                        {channels.map((sub) => (
                             <div
-                                key={channel._id}
-                                className="flex items-center p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+                                key={sub._id}
+                                onClick={() => handleChannelClick(sub.channel._id)}
+                                className="flex items-center cursor-pointer p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
                             >
-                                {/* Avatar */}
                                 <img
-                                    src={channel.owner.avatar}
-                                    alt={channel.fullName}
+                                    src={sub.channel.avatar}
+                                    alt={sub.channel.fullName}
                                     className="w-14 h-14 rounded-full object-cover border mr-4"
                                 />
-
-                                {/* Info */}
                                 <div className="flex flex-col">
                                     <h2 className="text-lg font-semibold text-gray-900 truncate">
-                                        {channel.fullName}
+                                        {sub.channel.fullName}
                                     </h2>
                                     <p className="text-sm text-gray-600 truncate">
-                                        @{channel.username}
+                                        @{sub.channel.username}
                                     </p>
                                 </div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <p className="text-gray-400">You haven’t subscribed to any channels yet.</p>
+                    <p className="text-gray-400">
+                        You haven’t subscribed to any channels yet.
+                    </p>
                 )}
             </div>
         </Layout>

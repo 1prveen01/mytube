@@ -32,6 +32,7 @@ import playlistRouter from "../routes/playlist.routes.js"
 import toggleRouter from "../routes/subscription.routes.js"
 import dashboardRouter from "../routes/dashboard.routes.js"
 import healthCheckRouter from '../routes/healthcheck.routes.js'
+import supportRouter from "../routes/support.routes.js"
 
 //routes declaration
 app.use("/api/v1/users", userRouter)
@@ -43,6 +44,7 @@ app.use("/api/v1/playlists",playlistRouter)
 app.use("/api/v1/subscriptions",toggleRouter)
 app.use("/api/v1/dashboard",dashboardRouter)
 app.use("/api/v1/healthCheck",healthCheckRouter)
+app.use("/api/v1/support", supportRouter)
 
 
 export default app

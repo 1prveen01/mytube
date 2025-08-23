@@ -7,6 +7,8 @@ import { response } from "express";
 import jwt from "jsonwebtoken";
 import { getPublicIdFromUrl } from "../../utils/getPublicIdFromUrl.js";
 import mongoose from "mongoose";
+import { Video } from "../models/videos.model.js";
+
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -439,6 +441,37 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
       new apiResponse(200, channel[0], "User channel fetched successfully")
     );
 });
+const deleteUserAccount = asyncHandler(async (req, res) => {
+  try {
+    console.log("User in request:", req.user);
+
+    const userId = req.user?._id;
+    if (!userId) {
+      return res.status(400).json({ error: "User ID not found in request" });
+    }
+
+    // Delete all videos owned by this user
+    const deletedVideos = await Video.deleteMany({ owner: userId });
+    console.log(`Deleted ${deletedVideos.deletedCount} videos for user ${userId}`);
+
+    // Delete the user
+    await User.findByIdAndDelete(userId);
+
+     const orphanDeleted = await Video.deleteMany({
+      owner: { $exists: true, $nin: await User.distinct("_id") }
+    });
+
+    console.log(`Cleaned ${orphanDeleted.deletedCount} orphaned videos`);
+
+    return res
+      .status(200)
+      .json(new apiResponse(200, {}, "User and all their videos deleted successfully"));
+  } catch (error) {
+    console.error("Error deleting user account:", error);
+    return res.status(500).json({ error: "Failed to delete user account" });
+  }
+});
+
 
 const getWatchHistory = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
@@ -512,5 +545,6 @@ export {
   updateUserCoverImage,
   updateUserAvatar,
   getUserChannelProfile,
-  getWatchHistory
+  getWatchHistory,
+  deleteUserAccount
 };

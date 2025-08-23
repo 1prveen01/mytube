@@ -31,7 +31,7 @@ const Home = () => {
           Videos
         </h2>
 
-        {/* Video Grid */}
+        
         <div className="grid gap-4 sm:gap-6 
                         grid-cols-1 
                         sm:grid-cols-2 
@@ -45,7 +45,7 @@ const Home = () => {
           ))}
         </div>
 
-        {/* Pagination controls */}
+        {/* Pagination */}
         <div className="flex justify-center items-center gap-4 mt-8">
           <button
             disabled={page === 1}

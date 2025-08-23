@@ -11,6 +11,16 @@ export const fetchAllVideos = async({page =1 , limit = 10  , query ="" , sortBy 
     return res.data.data;
 }
 
+export const fetchSearchVideos = async (searchItem, { page = 1, limit = 10, sortBy = "createdAt", sortType = "desc", userId = "" } = {}) => {
+  const res = await axiosInstance.get("/videos/all-videos", {
+    params: { page, limit, query: searchItem, sortBy, sortType, userId }
+  });
+
+  return res.data.data; 
+};
+
+
+
 export const getVideoById = async(videoId) =>{
     const res = await axiosInstance.get(`/videos/get-video-by-id/${videoId}`);
     return res.data.data;
@@ -19,7 +29,7 @@ export const getPublishedVideos = async ({ page = 1, limit = 10 }) => {
     const res = await axiosInstance.get("/videos/get-published-videos", {
         params: { page, limit }
     });
-    return res.data.data; // contains total, page, limit, videos
+    return res.data.data;
 };
 
 

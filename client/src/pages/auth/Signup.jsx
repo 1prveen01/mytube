@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import axiosInstance from '../../utils/axios.js'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const Signup = () => {
   const [formData, setformData] = useState({
@@ -14,6 +14,7 @@ const Signup = () => {
 
   const [error, setError] = useState("")
   const [loading, setloading] = useState(false)
+  const navigate = useNavigate(); // ✅ added
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -41,8 +42,12 @@ const Signup = () => {
       const res = await axiosInstance.post("/users/register", data, {
         headers: { "Content-Type": "multipart/form-data" },
       })
-      alert("Signup successful")
       console.log(res.data);
+
+      // ✅ Show success and navigate
+      alert("Signup successful! Redirecting to login...");
+      navigate("/login"); 
+
     } catch (error) {
       setError(error.response?.data?.message || "Signup failed")
     } finally {
@@ -54,22 +59,17 @@ const Signup = () => {
     <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md bg-gray-900 rounded-xl shadow-lg p-6 sm:p-8">
         
-        {/* Title */}
         <h1 className="text-3xl sm:text-4xl font-bold text-center text-white mb-6">
           Sign up
         </h1>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm text-gray-200 mb-1">
-              Email*
-            </label>
+            <label className="block text-sm text-gray-200 mb-1">Email*</label>
             <input
               type="email"
               name="email"
-              id="email"
               required
               onChange={handleChange}
               className="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -78,13 +78,10 @@ const Signup = () => {
 
           {/* Username */}
           <div>
-            <label htmlFor="username" className="block text-sm text-gray-200 mb-1">
-              Username*
-            </label>
+            <label className="block text-sm text-gray-200 mb-1">Username*</label>
             <input
               type="text"
               name="username"
-              id="username"
               required
               onChange={handleChange}
               className="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -93,13 +90,10 @@ const Signup = () => {
 
           {/* Full Name */}
           <div>
-            <label htmlFor="fullName" className="block text-sm text-gray-200 mb-1">
-              Full Name*
-            </label>
+            <label className="block text-sm text-gray-200 mb-1">Full Name*</label>
             <input
               type="text"
               name="fullName"
-              id="fullName"
               required
               onChange={handleChange}
               className="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -108,13 +102,10 @@ const Signup = () => {
 
           {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-sm text-gray-200 mb-1">
-              Password*
-            </label>
+            <label className="block text-sm text-gray-200 mb-1">Password*</label>
             <input
               type="password"
               name="password"
-              id="password"
               required
               onChange={handleChange}
               className="w-full border border-gray-600 bg-gray-800 text-white rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -123,13 +114,10 @@ const Signup = () => {
 
           {/* File Uploads */}
           <div>
-            <label htmlFor="profile" className="block text-sm text-gray-200 mb-1">
-              Profile*
-            </label>
+            <label className="block text-sm text-gray-200 mb-1">Profile*</label>
             <input
               type="file"
               name="profile"
-              id="profile"
               required
               onChange={handleChange}
               className="block w-full text-sm text-gray-300 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
@@ -137,13 +125,10 @@ const Signup = () => {
           </div>
 
           <div>
-            <label htmlFor="coverImage" className="block text-sm text-gray-200 mb-1">
-              Cover Image*
-            </label>
+            <label className="block text-sm text-gray-200 mb-1">Cover Image*</label>
             <input
               type="file"
               name="coverImage"
-              id="coverImage"
               required
               onChange={handleChange}
               className="block w-full text-sm text-gray-300 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
@@ -163,7 +148,6 @@ const Signup = () => {
           </button>
         </form>
 
-        {/* Footer */}
         <div className="flex justify-center mt-4 text-sm text-gray-400">
           <p>Already have an account?</p>
           <Link

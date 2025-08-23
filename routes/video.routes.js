@@ -3,7 +3,13 @@ import { verifyJWT } from "../src/middlewares/auth.middleware.js";
 import { upload } from "../src/middlewares/multer.middleware.js";
 import { deleteVideo, getAllVideos, getPublishedVideos, getVideoById, publishAVideo, togglePublishStatus, updateVideo } from "../src/controllers/video.controllers.js";
 
+
 const router = Router()
+
+
+
+
+
 router.route("/all-videos").get(verifyJWT , getAllVideos)
 router.route("/publish-video").post(verifyJWT,upload.fields([
     {name : "videoFile", maxCount: 1},

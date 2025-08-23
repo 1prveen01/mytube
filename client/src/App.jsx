@@ -13,6 +13,11 @@ import PublishPage from './pages/publish/PublishPage.jsx'
 import SubscribedChannelsPage from './pages/subscribedChannelsPage/subscribedChannelsPage.jsx'
 import PlaylistsPage from './pages/playlist/PlaylistsPage.jsx'
 import PlaylistDetailsPage from './pages/playlist/PlaylistDetailsPage.jsx'
+import UpdateUserDetails from './pages/dashboard/UpdateUserDetails.jsx'
+import SearchResults from './pages/searchResults/SearchResults.jsx'
+import ChannelDashboard from './pages/dashboard/ChannelDashboard.jsx'
+import Support from './pages/support/Support.jsx'
+
 
 
 
@@ -35,6 +40,10 @@ function App() {
         <Route path='/subscribedChannelList' element={<SubscribedChannelsPage />} />
         <Route path='/playlist' element={<PlaylistsPage />} />
         <Route path='/playlist/:playlistId' element={<PlaylistDetailsPage />} />
+        <Route path = '/updateUserDetails' element={<UpdateUserDetails />} />
+        <Route path='/search' element ={<SearchResults />} />
+        <Route path = '/channelDashboard/:channelId' element={<ChannelDashboard />} />
+        <Route path='/contact' element={<Support />} />
         
       </Routes>
 
