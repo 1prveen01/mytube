@@ -12,7 +12,7 @@ import VideoPlayer from './pages/videoPlayer/VideoPlayer.jsx'
 import LikedVideos from './pages/likedVideos/LikedVideos.jsx'
 import PublishedVideos from './pages/publish/PublishedVideos.jsx'
 import PublishPage from './pages/publish/PublishPage.jsx'
-import SubscribedChannelsPage from './pages/subscribedChannelsPage/subscribedChannelsPage.jsx'
+import SubscribedChannelsPage from "./pages/subscribedChannelsPage/SubscribedChannelsPage.jsx";
 import PlaylistsPage from './pages/playlist/PlaylistsPage.jsx'
 import PlaylistDetailsPage from './pages/playlist/PlaylistDetailsPage.jsx'
 import UpdateUserDetails from './pages/dashboard/UpdateUserDetails.jsx'
