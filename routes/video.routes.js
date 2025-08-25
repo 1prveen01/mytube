@@ -10,7 +10,7 @@ const router = Router()
 
 
 
-router.route("/all-videos").get(verifyJWT , getAllVideos)
+router.route("/all-videos").get( getAllVideos)
 router.route("/publish-video").post(verifyJWT,upload.fields([
     {name : "videoFile", maxCount: 1},
     {name : "thumbnail" , maxCount: 1}
