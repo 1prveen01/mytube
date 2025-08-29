@@ -9,7 +9,6 @@ import { getPublicIdFromUrl } from "../../utils/getPublicIdFromUrl.js";
 import mongoose from "mongoose";
 import { Video } from "../models/videos.model.js";
 
-
 const generateAccessAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -144,7 +143,9 @@ const loginUser = asyncHandler(async (req, res) => {
   //cookiesOptions
   const options = {
     httpOnly: true,
-    secure: true,
+    secure: true, // required on HTTPS
+    sameSite: "none", // allow cross-origin (Vercel <-> Render)
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   };
 
   return res
@@ -180,6 +181,8 @@ const logoutUser = asyncHandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: true,
+    sameSite: "none", // allow cross-origin (Vercel <-> Render)
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   };
 
   res
@@ -214,8 +217,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 
     const options = {
-      httpOnly: true,
-      secure: true,
+      httpOnly: true, 
+      secure: true, 
+      sameSite: "none", // allow cross-origin (Vercel <-> Render)
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     };
 
     const { accessToken, newRefreshToken } =
@@ -291,7 +296,9 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new apiResponse(200, userUpdated, "Accounts details updated successfully"));
+    .json(
+      new apiResponse(200, userUpdated, "Accounts details updated successfully")
+    );
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
@@ -452,26 +459,33 @@ const deleteUserAccount = asyncHandler(async (req, res) => {
 
     // Delete all videos owned by this user
     const deletedVideos = await Video.deleteMany({ owner: userId });
-    console.log(`Deleted ${deletedVideos.deletedCount} videos for user ${userId}`);
+    console.log(
+      `Deleted ${deletedVideos.deletedCount} videos for user ${userId}`
+    );
 
     // Delete the user
     await User.findByIdAndDelete(userId);
 
-     const orphanDeleted = await Video.deleteMany({
-      owner: { $exists: true, $nin: await User.distinct("_id") }
+    const orphanDeleted = await Video.deleteMany({
+      owner: { $exists: true, $nin: await User.distinct("_id") },
     });
 
     console.log(`Cleaned ${orphanDeleted.deletedCount} orphaned videos`);
 
     return res
       .status(200)
-      .json(new apiResponse(200, {}, "User and all their videos deleted successfully"));
+      .json(
+        new apiResponse(
+          200,
+          {},
+          "User and all their videos deleted successfully"
+        )
+      );
   } catch (error) {
     console.error("Error deleting user account:", error);
     return res.status(500).json({ error: "Failed to delete user account" });
   }
 });
-
 
 const getWatchHistory = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
@@ -546,5 +560,5 @@ export {
   updateUserAvatar,
   getUserChannelProfile,
   getWatchHistory,
-  deleteUserAccount
+  deleteUserAccount,
 };
